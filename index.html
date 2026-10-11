@@ -52,11 +52,11 @@ h1,h2,p{margin:0}
 /* Première page : plein écran, sans défilement */
 html.lock{overflow:hidden;overscroll-behavior:none}
 html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
-.welcome{height:100%;display:flex;flex-direction:column}
-.wgray{flex:1;min-height:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding:16px 24px 40px}
+.welcome{height:100vh;height:100dvh;display:flex;flex-direction:column}
+.wgray{flex:1;min-height:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px 24px 40px}
 .wgray svg{width:min(100%,340px);height:auto;max-height:100%}
 .sheet{
-  background:var(--card);border-radius:24px 24px 0 0;margin-top:-24px;position:relative;
+  flex:0 0 auto;background:var(--card);border-radius:24px 24px 0 0;margin-top:-24px;position:relative;
   padding:26px 16px calc(36px + env(safe-area-inset-bottom,0px));
 }
 .sheet h1{font-size:23px;font-weight:700;margin:0 0 22px 0}
@@ -97,6 +97,31 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 
 /* Page principale : vide, avec en-tête et barre d'onglets */
 .home{min-height:100vh}
+.home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px;align-content:start}
+.home-tile{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:1.586;border:1px solid rgba(255,255,255,.38);border-radius:14px;padding:12px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;font-size:12px;font-weight:700;box-shadow:0 5px 14px rgba(0,0,0,.2)}
+.home-tile::before,.home-tile::after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none}
+.home-tile::before{width:140px;height:140px;right:-48px;top:-62px;background:rgba(255,255,255,.13)}
+.home-tile::after{width:112px;height:112px;right:10px;bottom:-78px;background:rgba(0,0,0,.13)}
+.home-credit{background:linear-gradient(135deg,#334A72,#172A4A 72%)}
+.home-debit{background:linear-gradient(135deg,#138A5B,#07583E 72%)}
+.home-cardtop,.home-cardmiddle,.home-cardbottom{position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.home-cardtop{letter-spacing:.08em}
+.home-chip{width:30px;height:23px;flex:0 0 auto;border:1px solid rgba(105,75,22,.45);border-radius:5px;background:linear-gradient(135deg,#F7E2A0,#C9A64B);position:relative;overflow:hidden}
+.home-chip::before,.home-chip::after{content:"";position:absolute;border:1px solid rgba(105,75,22,.4)}
+.home-chip::before{inset:0 9px}
+.home-chip::after{inset:7px 0}
+.home-contactless{width:22px;height:22px;stroke:rgba(255,255,255,.85);fill:none;stroke-width:1.7;stroke-linecap:round}
+.home-cardbottom{align-items:flex-end}
+.home-balancelabel{display:block;font-size:9px;font-weight:500;letter-spacing:.1em;opacity:.8}
+.home-balance{font-size:19px;font-weight:700;line-height:1.1}
+.home-tile{font-family:inherit;text-align:left}
+button.home-tile{width:100%;cursor:pointer}
+button.home-tile:hover{filter:brightness(1.08)}
+button.home-tile:focus-visible{outline:3px solid var(--link);outline-offset:3px}
+.card-detail{padding:20px 16px}
+.card-detail .home-tile{width:100%;max-width:440px;margin:0 auto}
+.card-detail-summary{max-width:440px;margin:24px auto 0;padding:18px;background:var(--card);border-radius:10px;box-shadow:var(--shadow)}
+.card-detail-summary .home-balance{display:block;margin-top:6px;color:var(--ink)}
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bar);color:#fff;
   padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));
@@ -138,7 +163,7 @@ function frErr(m){
   return m||'Une erreur est survenue.';
 }
 
-var sb=null, session=null, mode='login', view='welcome', authMsg='', authErr=false, busy=false;
+var sb=null, session=null, mode='login', view='welcome', activeCard=null, authMsg='', authErr=false, busy=false;
 function configured(){
   return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
 }
@@ -207,9 +232,29 @@ function viewHome(){
   return '<div class="home">'+
     hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>'+
         '<button class="iconbtn" data-act="signout" aria-label="Se déconnecter">'+I_OUT+'</button>')+
-    '<main></main>'+
+    '<main class="home-grid" aria-label="Informations des comptes">'+
+      cardMarkup('debit',true)+cardMarkup('credit',true)+
+    '</main>'+
     '<nav class="tabbar" aria-label="Navigation principale"><button aria-current="page">'+I_HOME+'<span>Accueil</span></button></nav>'+
   '</div>';
+}
+
+function cardMarkup(type,interactive){
+  var label=type==='credit'?'CRÉDIT':'DÉBIT';
+  var content='<div class="home-cardtop"><span>'+label+'</span><span>CARTE</span></div>'+
+    '<div class="home-cardmiddle"><span class="home-chip" aria-hidden="true"></span><svg class="home-contactless" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8a6 6 0 0 1 0 8M12 5a10 10 0 0 1 0 14M16 2a14 14 0 0 1 0 20"/></svg></div>'+
+    '<div class="home-cardbottom"><span><span class="home-balancelabel">SOLDE</span><span class="home-balance">0 $</span></span><span>••••</span></div>';
+  if(interactive) return '<button type="button" class="home-tile home-'+type+'" data-act="open-card" data-card="'+type+'" aria-label="Ouvrir la carte '+label.toLowerCase()+'">'+content+'</button>';
+  return '<div class="home-tile home-'+type+'">'+content+'</div>';
+}
+
+function viewCard(){
+  var type=activeCard==='credit'?'credit':'debit';
+  var title=type==='credit'?'Carte de crédit':'Carte de débit';
+  return hdr('<button class="iconbtn" data-act="home" aria-label="Retour à l’accueil">'+I_X+'</button><h2 class="htitle">'+title+'</h2><span class="iconbtn" aria-hidden="true"></span>')+
+    '<main class="card-detail">'+cardMarkup(type,false)+
+      '<section class="card-detail-summary"><span class="home-balancelabel">SOLDE</span><span class="home-balance">0 $</span></section>'+
+    '</main>';
 }
 
 function render(){
@@ -220,7 +265,7 @@ function render(){
     if(view==='welcome'){html=viewWelcome();lock=true}
     else html=viewAuth();
   }
-  else {html=viewHome();white=true}
+  else {html=activeCard?viewCard():viewHome();white=true}
   $('app').innerHTML=html;
   document.documentElement.classList.toggle('lock',lock);
   document.body.classList.toggle('white',white);
@@ -240,6 +285,8 @@ document.addEventListener('click',function(e){
   if(act==='goform'){view='form';mode='login';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
   if(act==='gosignup'){view='form';mode='signup';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
   if(act==='back'){view='welcome';mode='login';authMsg='';authErr=false;render();return}
+  if(act==='open-card'){activeCard=b.dataset.card==='credit'?'credit':'debit';render();window.scrollTo(0,0);return}
+  if(act==='home'){activeCard=null;render();window.scrollTo(0,0);return}
   if(act==='mode'){mode=b.dataset.mode;authMsg='';authErr=false;render();return}
   if(act==='toggle-pw'){
     var pw=$('a-pw');
@@ -286,7 +333,7 @@ if(configured()){
   sb.auth.onAuthStateChange(function(ev,s){
     session=s;
     if(ev==='PASSWORD_RECOVERY'){mode='recovery';view='form';authMsg='';authErr=false}
-    else if(ev==='SIGNED_OUT'){mode='login';view='welcome'}
+    else if(ev==='SIGNED_OUT'){mode='login';view='welcome';activeCard=null}
     if(ev==='TOKEN_REFRESHED') return;
     render();
   });
