@@ -1,10 +1,10 @@
 {
-  "name": "Ma paie",
-  "short_name": "Ma paie",
+  "name": "Mon app",
+  "short_name": "Mon app",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F2F2F7",
+  "background_color": "#FFFFFF",
   "theme_color": "#00874E",
   "lang": "fr-CA",
   "icons": [

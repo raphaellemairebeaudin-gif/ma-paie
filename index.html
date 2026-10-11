@@ -3,179 +3,89 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ma paie</title>
+<title>Mon app</title>
 <meta name="theme-color" content="#00874E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ma paie">
+<meta name="apple-mobile-web-app-title" content="Mon app">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <style>
 :root{
-  --bg:#F2F2F7; --card:#FFFFFF; --ink:#1C1C1E; --muted:#6B6B70; --line:#E4E4E9;
-  --brand:#00874E; --brand-text:#00874E; --on-brand:#FFFFFF;
-  --bills:#6B8CA8; --spent:#F2A33A; --free:#00874E; --over:#D13B2F;
+  --bg:#FFFFFF; --card:#FFFFFF; --ink:#1C1C1E; --muted:#6B6B70; --line:#E4E4E9; --field:#F2F2F7;
+  --brand:#00874E; --brand-text:#00874E; --on-brand:#FFFFFF; --over:#D13B2F;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A;
-    --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF;
-    --bills:#8BA9C2; --spent:#F5B04F; --free:#3CCB8A; --over:#FF6B5E;
+    --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A; --field:#2C2C2E;
+    --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF; --over:#FF6B5E;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A;
-  --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF;
-  --bills:#8BA9C2; --spent:#F5B04F; --free:#3CCB8A; --over:#FF6B5E;
+  --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A; --field:#2C2C2E;
+  --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF; --over:#FF6B5E;
 }
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--brand)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg);height:100%}
 *,*::before,*::after{box-sizing:inherit}
 body{
-  margin:0;background:var(--bg);color:var(--ink);min-height:100%;
+  margin:0;background:var(--bg);color:var(--ink);height:100%;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,system-ui,sans-serif;
-  font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums;
+  font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%;
 }
-body.authbg{background:var(--brand)}
-h1,h2,p{margin:0}
-.wrap{max-width:560px;margin:0 auto;padding-bottom:110px}
-.muted{color:var(--muted)}
-.small{font-size:14px}
+body.authbg,html.authbg{background:var(--brand)}
+h1,p{margin:0}
 
-/* Bandeau vert */
-.top{background:var(--brand);color:var(--on-brand);padding:12px 18px 46px}
-.top .big{font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-top:6px}
-.top .sub{opacity:.85;margin-top:4px}
-.weeknav{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.weeknav .ttl{text-align:center;flex:1}
-.weeknav .ttl h1{font-size:17px;font-weight:600}
-.weeknav .ttl p{font-size:13px;opacity:.85}
-.circle{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:var(--on-brand);font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center}
-.today-link{display:block;margin:6px auto 0;background:none;border:0;color:var(--on-brand);opacity:.85;font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:6px}
-.hl{margin-top:18px;opacity:.9;font-size:16px}
-.hn{font-size:clamp(44px,14vw,60px);font-weight:700;letter-spacing:-0.03em;line-height:1.05;margin-top:2px}
-
-.pull{margin-top:-30px}
-.sec{font-size:15px;font-weight:600;color:var(--muted);margin:22px 20px 8px}
-.card{background:var(--card);border-radius:14px;margin:0 16px 14px;overflow:hidden}
-.barwrap{padding:16px 16px 6px}
-.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);gap:2px}
-.bar span{display:block;height:100%;transition:width .35s ease}
-@media (prefers-reduced-motion:reduce){.bar span{transition:none}}
-
-/* Lignes de liste */
-.cell{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
-.cell:last-child{border-bottom:0}
-.cell .l{display:flex;align-items:center;gap:10px;min-width:0}
-.cell .l b{display:block;font-weight:600;overflow-wrap:anywhere}
-.cell .l small{display:block;color:var(--muted);font-size:13px}
-.cell .r{font-weight:600;white-space:nowrap}
-.dot{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
-.cell input.inline{width:120px;text-align:right;padding:8px 10px;font-weight:600}
-.cell .note{font-size:14px;color:var(--muted)}
-.cell.warn .note{color:var(--ink)}
-.cell.warn{box-shadow:inset 3px 0 0 var(--over)}
-.rm{background:none;border:0;color:var(--brand-text);font:inherit;font-size:14px;cursor:pointer;padding:8px 2px}
-.empty{padding:16px;color:var(--muted)}
-.cell .r.group{display:flex;align-items:center;gap:12px}
-.cell input.bal{width:128px;text-align:right}
-
-/* Formulaires */
-.form{padding:14px 16px 16px}
-label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-input,select{
-  width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);
-  border:1px solid var(--line);border-radius:10px;padding:11px 12px;
-}
-input::placeholder{color:var(--muted);opacity:.7}
-.fields{display:grid;gap:10px;grid-template-columns:1fr 1fr}
-.fields .full{grid-column:1/-1}
-.btn{
-  font:inherit;font-weight:600;border:0;border-radius:10px;padding:14px 18px;cursor:pointer;
-  background:var(--brand);color:var(--on-brand);width:100%;margin-top:14px;
-}
-.btn.ghost{background:transparent;color:var(--brand-text);border:1px solid var(--line)}
-.btn.danger{background:transparent;color:var(--over);border:1px solid var(--line)}
-.btn[disabled]{opacity:.6}
-:focus-visible{outline:3px solid var(--brand-text);outline-offset:2px}
-.link{background:none;border:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
-
-/* Connexion */
+/* Pages de connexion */
 .auth{max-width:440px;margin:0 auto;padding:28px 20px 40px;color:var(--on-brand)}
 .auth .mark{display:flex;align-items:center;gap:12px;margin:18px 0 26px}
 .auth .mark img{width:44px;height:44px;border-radius:10px}
 .auth .mark span{font-size:28px;font-weight:700;letter-spacing:-0.02em}
-.auth .card{margin:0;color:var(--ink)}
+.card{background:var(--card);border-radius:14px;overflow:hidden;color:var(--ink)}
 .auth h1{font-size:20px;font-weight:700;padding:16px 16px 0}
-.msg{margin:0 16px 4px;font-size:14px;color:var(--muted)}
+.form{padding:14px 16px 16px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input{
+  width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);
+  border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+}
+.fields{display:grid;gap:10px}
+.btn{
+  font:inherit;font-weight:600;border:0;border-radius:10px;padding:14px 18px;cursor:pointer;
+  background:var(--brand);color:var(--on-brand);width:100%;margin-top:14px;
+}
+.btn[disabled]{opacity:.6}
+:focus-visible{outline:3px solid var(--brand-text);outline-offset:2px}
+.auth :focus-visible{outline-color:#fff}
+.auth .card :focus-visible{outline-color:var(--brand-text)}
+.msg{margin:0 16px 14px;font-size:14px;color:var(--muted)}
 .msg.err{color:var(--over)}
-.auth .below{text-align:center;margin-top:16px;font-size:15px}
+.below{text-align:center;margin-top:16px;font-size:15px}
+.link{background:none;border:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
 
-.center{padding:60px 24px;text-align:center;color:var(--muted)}
-
-.toast{
-  position:fixed;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));
-  background:#1C1C1E;color:#fff;border-radius:12px;padding:12px 16px;font-size:15px;
-  max-width:520px;margin:0 auto;opacity:0;pointer-events:none;transition:opacity .2s;
+/* Page principale : blanche */
+.home{min-height:100%}
+.signout{
+  position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:12px;
+  background:none;border:0;color:var(--muted);font:inherit;font-size:14px;cursor:pointer;padding:10px;
 }
-.toast.show{opacity:1}
-@media (prefers-reduced-motion:reduce){.toast{transition:none}}
-
-/* Barre du bas */
-.nav{
-  position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);
-  border-top:1px solid var(--line);padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));
-}
-.nav[hidden]{display:none}
-.nav button{
-  flex:1;background:none;border:0;color:var(--muted);font:inherit;font-size:11px;
-  display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;
-}
-.nav button svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.nav button[aria-current="page"]{color:var(--brand-text);font-weight:600}
 </style>
 </head>
 <body>
-<main class="wrap" id="app"></main>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<nav class="nav" id="nav" aria-label="Navigation principale" hidden></nav>
+<div id="app"></div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
 'use strict';
-
-/* ---------- Utilitaires ---------- */
-var CATS=['Épicerie','Essence','Resto','Loisirs','Autre'];
-var JOURS=['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
-var fmt=new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD'});
-function money(n){return fmt.format(n||0)}
+var cfg=window.APP_CONFIG||{};
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function parseAmount(v){
-  var s=String(v==null?'':v).replace(/\s/g,'').replace(',','.').replace(/[^0-9.\-]/g,'');
-  var n=parseFloat(s);
-  return isFinite(n)?n:null;
-}
-function pad(n){return n<10?'0'+n:''+n}
-function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
-function parseISO(s){var p=String(s).slice(0,10).split('-').map(Number);return new Date(p[0],p[1]-1,p[2])}
-function addDays(d,n){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()+n);return x}
-function mondayOf(d){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
-function dshort(d){return d.toLocaleDateString('fr-CA',{day:'numeric',month:'short'})}
-function dlong(d){return d.toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long'})}
-function daysInMonth(y,m){return new Date(y,m+1,0).getDate()}
-
-var toastTimer=null;
-function toast(msg){
-  var t=$('toast');t.textContent=msg;t.classList.add('show');
-  clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show')},4000);
-}
 function frErr(m){
   m=String(m||'');
   if(/invalid login credentials/i.test(m)) return 'Courriel ou mot de passe incorrect.';
@@ -188,434 +98,104 @@ function frErr(m){
   return m||'Une erreur est survenue.';
 }
 
-/* ---------- État ---------- */
-var cfg=window.APP_CONFIG||{};
-var sb=null, session=null, state=null;
-var mode='login', authMsg='', authErr=false;
-var loading=false, loadError='', busy=false, loadedFor=null;
-var tab='semaine', cursor=mondayOf(new Date());
-
-function getWeek(key){
-  if(!state.weeks[key]) state.weeks[key]={pay:null,spends:[]};
-  return state.weeks[key];
-}
-function monthlyTotal(){return state.fixed.reduce(function(a,f){return a+f.amount},0)}
-function reserveWeekly(){return monthlyTotal()*12/52}
-
-/* Coussin : les semaines fortes le remplissent, les faibles le vident */
-function compute(key){
-  var base=state.settings.base||0, reserve=reserveWeekly(), cush=0, shortage=0;
-  var keys=Object.keys(state.weeks).filter(function(k){return state.weeks[k].pay!=null&&k<=key}).sort();
-  keys.forEach(function(k){
-    var t=cush+(state.weeks[k].pay-base);
-    if(t>=0){cush=t}
-    else{ if(k===key) shortage=-t; cush=0; }
-  });
-  return {base:base,reserve:reserve,cush:cush,shortage:shortage};
+var sb=null, session=null, mode='login', authMsg='', authErr=false, busy=false;
+function configured(){
+  return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
 }
 
-/* ---------- Données (Supabase) ---------- */
-async function run(p){
-  try{
-    var r=await p;
-    if(r.error){toast(frErr(r.error.message));return null}
-    return r;
-  }catch(e){toast(frErr(e&&e.message));return null}
-}
-function mapFixed(d){return {id:d.id,name:d.name,amount:Number(d.amount),day:d.day}}
-function mapSpend(d){return {id:d.id,amount:Number(d.amount),cat:d.cat,label:d.label||'',date:String(d.spent_on).slice(0,10)}}
-function mapSaving(d){return {id:d.id,name:d.name,balance:d.balance==null?null:Number(d.balance)}}
+function mark(){return '<div class="mark"><img src="icon-192.png" alt=""><span>Mon app</span></div>'}
 
-async function loadAll(){
-  loading=true;loadError='';render();
-  try{
-    var res=await Promise.all([
-      sb.from('settings').select('*').maybeSingle(),
-      sb.from('fixed_expenses').select('*').order('day'),
-      sb.from('weeks').select('*'),
-      sb.from('spends').select('*'),
-      sb.from('savings').select('*').order('created_at')
-    ]);
-    for(var i=0;i<res.length;i++){ if(res[i].error) throw res[i].error; }
-    var st=res[0].data;
-    var s={settings:{base:st?Number(st.base):0,payday:st?st.payday:5},fixed:[],weeks:{},savings:[]};
-    s.fixed=(res[1].data||[]).map(mapFixed);
-    (res[2].data||[]).forEach(function(w){
-      var k=String(w.week_start).slice(0,10);
-      s.weeks[k]=s.weeks[k]||{pay:null,spends:[]};
-      s.weeks[k].pay=w.pay==null?null:Number(w.pay);
-    });
-    (res[3].data||[]).forEach(function(x){
-      var k=String(x.week_start).slice(0,10);
-      s.weeks[k]=s.weeks[k]||{pay:null,spends:[]};
-      s.weeks[k].spends.push(mapSpend(x));
-    });
-    s.savings=(res[4].data||[]).map(mapSaving);
-    state=s;loadedFor=session.user.id;
-  }catch(e){
-    loadError=frErr(e&&e.message);
-  }
-  loading=false;render();
-}
-
-async function saveSettings(){
-  return run(sb.from('settings').upsert({user_id:session.user.id,base:state.settings.base,payday:state.settings.payday},{onConflict:'user_id'}));
-}
-
-/* ---------- Vues : connexion ---------- */
 function viewConfig(){
-  return '<div class="auth"><div class="mark"><img src="icon-192.png" alt=""><span>Ma paie</span></div>'+
-    '<section class="card"><h1>Configuration manquante</h1>'+
-    '<div class="form"><p class="muted">Ouvre le fichier <b>config.js</b> et remplace l\u2019adresse du projet Supabase et la clé publique, puis recharge la page.</p></div></section></div>';
+  return '<div class="auth">'+mark()+'<section class="card"><h1>Configuration manquante</h1>'+
+    '<div class="form"><p class="muted" style="color:var(--muted)">Ouvre le fichier <b>config.js</b> et remplace l\u2019adresse du projet Supabase et la clé publique, puis recharge la page.</p></div></section></div>';
 }
+
 function viewAuth(){
   var titles={login:'Connexion',signup:'Créer un compte',forgot:'Mot de passe oublié',recovery:'Nouveau mot de passe'};
   var btn={login:'Se connecter',signup:'Créer mon compte',forgot:'Envoyer le lien',recovery:'Enregistrer'}[mode];
   var fields='';
-  if(mode!=='recovery') fields+='<div class="full"><label for="a-mail">Courriel</label><input id="a-mail" name="email" type="email" autocomplete="email" inputmode="email" required></div>';
-  if(mode!=='forgot') fields+='<div class="full"><label for="a-pw">'+(mode==='recovery'?'Nouveau mot de passe':'Mot de passe')+'</label><input id="a-pw" name="password" type="password" minlength="6" autocomplete="'+(mode==='login'?'current-password':'new-password')+'" required></div>';
+  if(mode!=='recovery') fields+='<div><label for="a-mail">Courriel</label><input id="a-mail" name="email" type="email" autocomplete="email" inputmode="email" required></div>';
+  if(mode!=='forgot') fields+='<div><label for="a-pw">'+(mode==='recovery'?'Nouveau mot de passe':'Mot de passe')+'</label><input id="a-pw" name="password" type="password" minlength="6" autocomplete="'+(mode==='login'?'current-password':'new-password')+'" required></div>';
   var below='';
   if(mode==='login') below='<button class="link" data-act="mode" data-mode="signup">Créer un compte</button><br><button class="link" data-act="mode" data-mode="forgot">Mot de passe oublié</button>';
   else if(mode==='signup'||mode==='forgot') below='<button class="link" data-act="mode" data-mode="login">J\u2019ai déjà un compte</button>';
-  return '<div class="auth"><div class="mark"><img src="icon-192.png" alt=""><span>Ma paie</span></div>'+
+  return '<div class="auth">'+mark()+
     '<section class="card"><h1>'+titles[mode]+'</h1>'+
     '<form class="form" data-form="auth"><div class="fields">'+fields+'</div>'+
     '<button class="btn" type="submit">'+btn+'</button></form>'+
-    (authMsg?'<p class="msg'+(authErr?' err':'')+'" style="padding-bottom:14px" role="alert">'+esc(authMsg)+'</p>':'')+
+    (authMsg?'<p class="msg'+(authErr?' err':'')+'" role="alert">'+esc(authMsg)+'</p>':'')+
     '</section><p class="below">'+below+'</p></div>';
 }
 
-/* ---------- Vues : app ---------- */
-function top(inner){return '<header class="top">'+inner+'</header>'}
-function cell(left,right,dot){
-  return '<div class="cell"><span class="l">'+(dot?'<i class="dot" style="background:'+dot+'"></i>':'')+'<span>'+left+'</span></span><span class="r">'+right+'</span></div>';
+function viewHome(){
+  return '<main class="home"><button class="signout" data-act="signout">Se déconnecter</button></main>';
 }
-
-function setupCard(){
-  var opts=JOURS.map(function(j,i){return '<option value="'+(i+1)+'"'+(state.settings.payday===i+1?' selected':'')+'>'+j+'</option>'}).join('');
-  return '<section class="card"><form class="form" data-form="setup">'+
-    '<p class="muted" style="margin-bottom:12px">Entre le montant net que tu reçois dans une semaine plutôt faible. Les semaines plus fortes iront dans ton coussin, et les semaines faibles pourront le vider.</p>'+
-    '<div class="fields">'+
-      '<div class="full"><label for="s-base">Paie de base par semaine (net)</label><input id="s-base" name="base" inputmode="decimal" placeholder="ex. 650" required></div>'+
-      '<div class="full"><label for="s-day">Jour de paie</label><select id="s-day" name="payday">'+opts+'</select></div>'+
-    '</div><button class="btn" type="submit">Enregistrer</button>'+
-    '<p class="small muted" style="margin-top:12px">Ensuite, ajoute tes dépenses mensuelles dans l\u2019onglet Fixes.</p>'+
-  '</form></section>';
-}
-
-function fivePayNote(){
-  var pd=addDays(cursor,state.settings.payday-1);
-  var y=pd.getFullYear(), m=pd.getMonth(), wd=state.settings.payday%7, count=0;
-  for(var d=1;d<=daysInMonth(y,m);d++){ if(new Date(y,m,d).getDay()===wd) count++; }
-  if(count<5) return '';
-  var nth=Math.floor((pd.getDate()-1)/7)+1;
-  var mois=pd.toLocaleDateString('fr-CA',{month:'long'});
-  if(nth===5) return 'Cinquième paie de '+esc(mois)+'. Tu mets de côté un peu plus que tes factures du mois, ce qui compense les mois à 4 paies.';
-  return esc(mois.charAt(0).toUpperCase()+mois.slice(1))+' compte 5 paies.';
-}
-
-function viewSemaine(){
-  var s=state.settings;
-  if(!s.base){
-    return top('<h1 class="big">Bienvenue</h1><p class="sub">Quelques réglages pour commencer.</p>')+'<div class="pull">'+setupCard()+'</div>';
-  }
-  var key=iso(cursor), wk=state.weeks[key]||{pay:null,spends:[]};
-  var c=compute(key);
-  var end=addDays(cursor,6), payDate=addDays(cursor,s.payday-1);
-  var libre=c.base-c.reserve-c.shortage;
-  var spent=wk.spends.reduce(function(a,x){return a+x.amount},0);
-  var left=libre-spent;
-  var isNow=key===iso(mondayOf(new Date()));
-
-  var segRes=Math.max(c.reserve,0);
-  var segSpent=Math.min(spent,Math.max(libre,0));
-  var segLeft=Math.max(left,0);
-  var segOver=Math.max(spent-Math.max(libre,0),0);
-  var tot=segRes+segSpent+segLeft+segOver||1;
-  function w(v){return (v/tot*100).toFixed(2)+'%'}
-  var bar='<div class="bar" role="img" aria-label="Répartition de la paie">'+
-    '<span style="width:'+w(segRes)+';background:var(--bills)"></span>'+
-    '<span style="width:'+w(segSpent)+';background:var(--spent)"></span>'+
-    '<span style="width:'+w(segLeft)+';background:var(--free)"></span>'+
-    (segOver>0?'<span style="width:'+w(segOver)+';background:var(--over)"></span>':'')+
-  '</div>';
-
-  var notes=[];
-  if(libre<0) notes.push({t:'Tes dépenses fixes dépassent ta paie de base. Vérifie l\u2019onglet Fixes ou ta paie de base dans Réglages.',warn:true});
-  if(wk.pay!=null){
-    var diff=wk.pay-c.base;
-    if(diff>0.005) notes.push({t:'Cette paie dépasse ta base de '+money(diff)+'. L\u2019excédent va dans ton coussin.'});
-    if(diff<-0.005){
-      if(c.shortage>0.005) notes.push({t:'Cette paie est sous ta base de '+money(-diff)+'. Le coussin ne suffit pas : ton disponible baisse de '+money(c.shortage)+'.',warn:true});
-      else notes.push({t:'Cette paie est sous ta base de '+money(-diff)+'. Le manque est pris dans ton coussin.'});
-    }
-  }
-  var fp=fivePayNote(); if(fp) notes.push({t:fp});
-  var notesHtml=notes.length?'<section class="card">'+notes.map(function(n){
-    return '<div class="cell'+(n.warn?' warn':'')+'"><span class="note">'+n.t+'</span></div>';
-  }).join('')+'</section>':'';
-
-  var due=[];
-  for(var i=0;i<7;i++){
-    var d=addDays(cursor,i), dim=daysInMonth(d.getFullYear(),d.getMonth());
-    state.fixed.forEach(function(f){
-      if(f.day===d.getDate()||(f.day>dim&&d.getDate()===dim)) due.push({f:f,d:d});
-    });
-  }
-  var dueHtml=due.length?'<h2 class="sec">Prélevé cette semaine</h2><section class="card">'+due.map(function(x){
-    return '<div class="cell"><span class="l"><span><b>'+esc(x.f.name)+'</b><small>'+esc(dlong(x.d))+'</small></span></span><span class="r">'+money(x.f.amount)+'</span></div>';
-  }).join('')+'</section><p class="small muted" style="margin:-6px 20px 0">Déjà couvert par ta mise de côté de la semaine.</p>':'';
-
-  var catOpts=CATS.map(function(k){return '<option>'+k+'</option>'}).join('');
-  var spends=wk.spends.slice().sort(function(a,b){return a.date<b.date?1:-1});
-  var spendHtml=spends.length?spends.map(function(x){
-    return '<div class="cell"><span class="l"><span><b>'+esc(x.label||x.cat)+'</b><small>'+esc(x.cat)+' \u00b7 '+esc(dshort(parseISO(x.date)))+'</small></span></span>'+
-      '<span class="r group">'+money(x.amount)+'<button class="rm" data-act="rm-spend" data-id="'+esc(x.id)+'">Retirer</button></span></div>';
-  }).join(''):'<p class="empty">Aucune dépense cette semaine.</p>';
-
-  return top(
-      '<div class="weeknav">'+
-        '<button class="circle" data-act="prev" aria-label="Semaine précédente">\u2039</button>'+
-        '<div class="ttl"><h1>'+esc(dshort(cursor))+' au '+esc(dshort(end))+'</h1><p>Paie le '+esc(dlong(payDate))+'</p></div>'+
-        '<button class="circle" data-act="next" aria-label="Semaine suivante">\u203a</button>'+
-      '</div>'+
-      (isNow?'':'<button class="today-link" data-act="now">Revenir à cette semaine</button>')+
-      '<p class="hl">'+(left<0?'Dépassé de':'Il te reste')+'</p><p class="hn">'+money(Math.abs(left))+'</p>'
-    )+
-    '<div class="pull">'+
-    '<section class="card"><div class="barwrap">'+bar+'</div>'+
-      '<div class="cell"><span class="l"><span>Paie reçue</span></span>'+
-        '<input class="inline" data-change="pay" inputmode="decimal" aria-label="Paie reçue cette semaine" placeholder="'+esc(String(c.base))+'" value="'+(wk.pay!=null?esc(String(wk.pay)):'')+'"></div>'+
-      cell('Mis de côté pour les factures',money(c.reserve),'var(--bills)')+
-      cell('Dépensé',money(spent),'var(--spent)')+
-      cell('Disponible cette semaine',money(libre),'var(--free)')+
-      cell('Coussin',money(c.cush))+
-    '</section>'+
-    notesHtml+
-    '<h2 class="sec">Ajouter une dépense</h2>'+
-    '<section class="card"><form class="form" data-form="spend"><div class="fields">'+
-      '<div><label for="sp-amt">Montant</label><input id="sp-amt" name="amount" inputmode="decimal" placeholder="0,00" required></div>'+
-      '<div><label for="sp-cat">Catégorie</label><select id="sp-cat" name="cat">'+catOpts+'</select></div>'+
-      '<div class="full"><label for="sp-lab">Note (facultatif)</label><input id="sp-lab" name="label" placeholder="ex. Metro"></div>'+
-    '</div><button class="btn" type="submit">Ajouter la dépense</button></form></section>'+
-    '<h2 class="sec">Dépenses de la semaine</h2><section class="card">'+spendHtml+'</section>'+
-    dueHtml+
-    '</div>';
-}
-
-function viewFixes(){
-  var items=state.fixed.slice().sort(function(a,b){return a.day-b.day});
-  var list=items.length?items.map(function(f){
-    return '<div class="cell"><span class="l"><span><b>'+esc(f.name)+'</b><small>Le '+f.day+' de chaque mois</small></span></span>'+
-      '<span class="r group">'+money(f.amount)+'<button class="rm" data-act="rm-fixed" data-id="'+esc(f.id)+'">Retirer</button></span></div>';
-  }).join(''):'<p class="empty">Ajoute ton loyer, tes abonnements, ton cell, tes assurances\u2026</p>';
-  return top('<h1 class="big">Fixes</h1><p class="hl">Total par mois</p><p class="hn">'+money(monthlyTotal())+'</p>')+
-    '<div class="pull">'+
-    '<section class="card">'+list+(items.length?cell('Mis de côté à chaque paie',money(reserveWeekly())):'')+'</section>'+
-    '<h2 class="sec">Ajouter une dépense fixe</h2>'+
-    '<section class="card"><form class="form" data-form="fixed"><div class="fields">'+
-      '<div class="full"><label for="f-name">Nom</label><input id="f-name" name="name" placeholder="ex. Loyer" required></div>'+
-      '<div><label for="f-amt">Montant par mois</label><input id="f-amt" name="amount" inputmode="decimal" placeholder="0,00" required></div>'+
-      '<div><label for="f-day">Jour du mois</label><input id="f-day" name="day" type="number" min="1" max="31" inputmode="numeric" placeholder="1" required></div>'+
-    '</div><button class="btn" type="submit">Ajouter</button></form></section></div>';
-}
-
-function viewEpargne(){
-  var total=state.savings.reduce(function(a,x){return a+(x.balance||0)},0);
-  var list=state.savings.length?state.savings.map(function(x){
-    return '<div class="cell"><span class="l"><span><b>'+esc(x.name)+'</b></span></span>'+
-      '<span class="r group"><input class="bal" data-change="bal" data-id="'+esc(x.id)+'" inputmode="decimal" aria-label="Montant pour '+esc(x.name)+'" placeholder="0,00" value="'+(x.balance!=null?esc(String(x.balance)):'')+'">'+
-      '<button class="rm" data-act="rm-saving" data-id="'+esc(x.id)+'">Retirer</button></span></div>';
-  }).join(''):'<p class="empty">Ajoute tes comptes d\u2019épargne et de placements, puis mets leur montant à jour quand tu veux.</p>';
-  return top('<h1 class="big">Épargne</h1><p class="hl">Total</p><p class="hn">'+money(total)+'</p>')+
-    '<div class="pull"><section class="card">'+list+'</section>'+
-    '<h2 class="sec">Ajouter un compte</h2>'+
-    '<section class="card"><form class="form" data-form="saving"><div class="fields">'+
-      '<div class="full"><label for="a-name">Nom</label><input id="a-name" name="name" placeholder="ex. CELI" required></div>'+
-      '<div class="full"><label for="a-bal">Montant actuel</label><input id="a-bal" name="balance" inputmode="decimal" placeholder="0,00"></div>'+
-    '</div><button class="btn" type="submit">Ajouter</button></form></section></div>';
-}
-
-function viewReglages(){
-  var opts=JOURS.map(function(j,i){return '<option value="'+(i+1)+'"'+(state.settings.payday===i+1?' selected':'')+'>'+j+'</option>'}).join('');
-  return top('<h1 class="big">Réglages</h1>')+
-    '<div class="pull"><section class="card"><div class="form"><div class="fields">'+
-      '<div class="full"><label for="r-base">Paie de base par semaine (net)</label><input id="r-base" data-change="base" inputmode="decimal" value="'+(state.settings.base?esc(String(state.settings.base)):'')+'"></div>'+
-      '<div class="full"><label for="r-day">Jour de paie</label><select id="r-day" data-change="payday">'+opts+'</select></div>'+
-    '</div><p class="small muted" style="margin-top:10px">Choisis un montant que tu es presque sûr de recevoir chaque semaine.</p></div></section>'+
-    '<h2 class="sec">Compte</h2><section class="card"><div class="form">'+
-      '<p class="muted small">Connecté avec '+esc(session&&session.user?session.user.email||'':'')+'</p>'+
-      '<button class="btn ghost" data-act="signout">Se déconnecter</button></div></section></div>';
-}
-
-/* ---------- Navigation et rendu ---------- */
-var ICONS={
-  semaine:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
-  fixes:'<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>',
-  epargne:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M14.5 9.5c-.6-.8-1.5-1.1-2.5-1.1-1.4 0-2.5.7-2.5 1.8 0 2.4 5 1.2 5 3.6 0 1.1-1.1 1.8-2.5 1.8-1 0-2-.4-2.6-1.2"/></svg>',
-  reglages:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>'
-};
-var TABS=[['semaine','Semaine'],['fixes','Fixes'],['epargne','Épargne'],['reglages','Réglages']];
 
 function render(){
-  var app=$('app'), nav=$('nav');
-  function plain(html,authLook){
-    app.innerHTML=html;nav.hidden=true;nav.innerHTML='';
-    document.body.classList.toggle('authbg',!!authLook);
-  }
-  if(!cfg.SUPABASE_URL||!cfg.SUPABASE_KEY||/TON-PROJET/.test(cfg.SUPABASE_URL)||!window.supabase) return plain(viewConfig(),true);
-  if(mode==='recovery') return plain(viewAuth(),true);
-  if(!session) return plain(viewAuth(),true);
-  if(loading||(!state&&!loadError)) return plain('<p class="center">Chargement\u2026</p>',false);
-  if(loadError) return plain('<div class="center"><p>Impossible de charger tes données.</p><p class="small">'+esc(loadError)+'</p><button class="btn" data-act="retry" style="max-width:240px">Réessayer</button></div>',false);
-  document.body.classList.remove('authbg');
-  var v={semaine:viewSemaine,fixes:viewFixes,epargne:viewEpargne,reglages:viewReglages}[tab]();
-  app.innerHTML=v;
-  nav.hidden=false;
-  nav.innerHTML=TABS.map(function(t){
-    return '<button data-tab="'+t[0]+'"'+(tab===t[0]?' aria-current="page"':'')+'>'+ICONS[t[0]]+'<span>'+t[1]+'</span></button>';
-  }).join('');
+  var app=$('app'), authLook=true, html;
+  if(!configured()) html=viewConfig();
+  else if(mode==='recovery'||!session) html=viewAuth();
+  else {html=viewHome();authLook=false}
+  app.innerHTML=html;
+  document.documentElement.classList.toggle('authbg',authLook);
+  document.body.classList.toggle('authbg',authLook);
 }
 
-/* ---------- Actions ---------- */
 function guard(fn){
   if(busy) return Promise.resolve();
   busy=true;
-  return fn().catch(function(e){toast(frErr(e&&e.message))}).then(function(){busy=false;render()});
+  return fn().catch(function(e){authMsg=frErr(e&&e.message);authErr=true}).then(function(){busy=false;render()});
 }
 
 document.addEventListener('click',function(e){
-  var tb=e.target.closest('[data-tab]');
-  if(tb){tab=tb.dataset.tab;render();window.scrollTo(0,0);return}
   var b=e.target.closest('[data-act]');
   if(!b) return;
-  var act=b.dataset.act, id=b.dataset.id;
-  if(act==='mode'){mode=b.dataset.mode;authMsg='';authErr=false;render();return}
-  if(act==='retry'){loadAll();return}
-  if(act==='prev'){cursor=addDays(cursor,-7);render();return}
-  if(act==='next'){cursor=addDays(cursor,7);render();return}
-  if(act==='now'){cursor=mondayOf(new Date());render();return}
-  guard(async function(){
-    if(act==='signout'){
-      await sb.auth.signOut();return;
-    }
-    if(act==='rm-spend'){
-      var key=iso(cursor), wk=getWeek(key);
-      if(await run(sb.from('spends').delete().eq('id',id))) wk.spends=wk.spends.filter(function(x){return x.id!==id});
-    }else if(act==='rm-fixed'){
-      if(await run(sb.from('fixed_expenses').delete().eq('id',id))) state.fixed=state.fixed.filter(function(x){return x.id!==id});
-    }else if(act==='rm-saving'){
-      if(await run(sb.from('savings').delete().eq('id',id))) state.savings=state.savings.filter(function(x){return x.id!==id});
-    }
-  });
+  if(b.dataset.act==='mode'){mode=b.dataset.mode;authMsg='';authErr=false;render();return}
+  if(b.dataset.act==='signout'){guard(async function(){await sb.auth.signOut()})}
 });
 
 document.addEventListener('submit',function(e){
-  var f=e.target.closest('form[data-form]');
+  var f=e.target.closest('form[data-form="auth"]');
   if(!f) return;
   e.preventDefault();
-  var fd=new FormData(f), type=f.dataset.form;
-
-  if(type==='auth'){
-    guard(async function(){
-      authMsg='';authErr=false;
-      var email=String(fd.get('email')||'').trim(), pw=String(fd.get('password')||'');
-      var here=location.origin+location.pathname;
-      if(mode==='login'){
-        var r=await sb.auth.signInWithPassword({email:email,password:pw});
-        if(r.error){authMsg=frErr(r.error.message);authErr=true}
-      }else if(mode==='signup'){
-        var r2=await sb.auth.signUp({email:email,password:pw,options:{emailRedirectTo:here}});
-        if(r2.error){authMsg=frErr(r2.error.message);authErr=true}
-        else if(!r2.data.session){authMsg='Compte créé. Ouvre le lien reçu par courriel pour le confirmer, puis connecte-toi.';mode='login'}
-      }else if(mode==='forgot'){
-        var r3=await sb.auth.resetPasswordForEmail(email,{redirectTo:here});
-        if(r3.error){authMsg=frErr(r3.error.message);authErr=true}
-        else{authMsg='Si ce courriel a un compte, un lien vient de lui être envoyé.';mode='login'}
-      }else if(mode==='recovery'){
-        var r4=await sb.auth.updateUser({password:pw});
-        if(r4.error){authMsg=frErr(r4.error.message);authErr=true}
-        else{
-          authMsg='';mode='login';
-          if(session&&session.user&&loadedFor!==session.user.id) setTimeout(loadAll,0);
-        }
-      }
-    });
-    return;
-  }
-
+  var fd=new FormData(f);
   guard(async function(){
-    if(type==='setup'){
-      var base=parseAmount(fd.get('base'));
-      if(!base||base<=0) return;
-      state.settings.base=base;state.settings.payday=parseInt(fd.get('payday'),10)||5;
-      await saveSettings();
-    }else if(type==='spend'){
-      var amt=parseAmount(fd.get('amount'));
-      if(amt==null||amt<=0) return;
-      var today=new Date(), key=iso(cursor), inWeek=iso(mondayOf(today))===key;
-      var row={week_start:key,spent_on:inWeek?iso(today):key,amount:amt,cat:String(fd.get('cat')),label:String(fd.get('label')||'').trim()};
-      var r=await run(sb.from('spends').insert(row).select().single());
-      if(r) getWeek(key).spends.push(mapSpend(r.data));
-    }else if(type==='fixed'){
-      var a=parseAmount(fd.get('amount')), day=parseInt(fd.get('day'),10), name=String(fd.get('name')||'').trim();
-      if(!name||a==null||a<0||!(day>=1&&day<=31)) return;
-      var r2=await run(sb.from('fixed_expenses').insert({name:name,amount:a,day:day}).select().single());
-      if(r2) state.fixed.push(mapFixed(r2.data));
-    }else if(type==='saving'){
-      var n=String(fd.get('name')||'').trim();
-      if(!n) return;
-      var r3=await run(sb.from('savings').insert({name:n,balance:parseAmount(fd.get('balance'))}).select().single());
-      if(r3) state.savings.push(mapSaving(r3.data));
+    authMsg='';authErr=false;
+    var email=String(fd.get('email')||'').trim(), pw=String(fd.get('password')||'');
+    var here=location.origin+location.pathname;
+    if(mode==='login'){
+      var r=await sb.auth.signInWithPassword({email:email,password:pw});
+      if(r.error){authMsg=frErr(r.error.message);authErr=true}
+    }else if(mode==='signup'){
+      var r2=await sb.auth.signUp({email:email,password:pw,options:{emailRedirectTo:here}});
+      if(r2.error){authMsg=frErr(r2.error.message);authErr=true}
+      else if(!r2.data.session){authMsg='Compte créé. Ouvre le lien reçu par courriel pour le confirmer, puis connecte-toi.';mode='login'}
+    }else if(mode==='forgot'){
+      var r3=await sb.auth.resetPasswordForEmail(email,{redirectTo:here});
+      if(r3.error){authMsg=frErr(r3.error.message);authErr=true}
+      else{authMsg='Si ce courriel a un compte, un lien vient de lui être envoyé.';mode='login'}
+    }else if(mode==='recovery'){
+      var r4=await sb.auth.updateUser({password:pw});
+      if(r4.error){authMsg=frErr(r4.error.message);authErr=true}
+      else{authMsg='';mode='login'}
     }
   });
 });
 
-document.addEventListener('change',function(e){
-  var el=e.target.closest('[data-change]');
-  if(!el) return;
-  var type=el.dataset.change;
-  guard(async function(){
-    if(type==='pay'){
-      var v=el.value.trim(), key=iso(cursor), pay=v===''?null:parseAmount(v);
-      if(v!==''&&pay==null) return;
-      var ok=await run(sb.from('weeks').upsert({user_id:session.user.id,week_start:key,pay:pay},{onConflict:'user_id,week_start'}));
-      if(ok) getWeek(key).pay=pay;
-    }else if(type==='bal'){
-      var x=state.savings.filter(function(s){return s.id===el.dataset.id})[0];
-      if(!x) return;
-      var bal=el.value.trim()===''?null:parseAmount(el.value);
-      if(await run(sb.from('savings').update({balance:bal}).eq('id',x.id))) x.balance=bal;
-    }else if(type==='base'){
-      var b=parseAmount(el.value);
-      if(b&&b>0){state.settings.base=b;await saveSettings()}
-    }else if(type==='payday'){
-      state.settings.payday=parseInt(el.value,10)||5;await saveSettings();
-    }
-  });
-});
-
-/* ---------- Démarrage ---------- */
-function start(){
-  if('serviceWorker' in navigator){
-    window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
-  }
-  if(!cfg.SUPABASE_URL||!cfg.SUPABASE_KEY||/TON-PROJET/.test(cfg.SUPABASE_URL)||!window.supabase){render();return}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+if(configured()){
   sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   sb.auth.onAuthStateChange(function(ev,s){
     session=s;
-    if(ev==='PASSWORD_RECOVERY'){mode='recovery';authMsg='';render();return}
-    if(ev==='SIGNED_OUT'||!s){state=null;loadedFor=null;loading=false;mode=mode==='recovery'?'login':mode;render();return}
-    if(ev==='TOKEN_REFRESHED'||ev==='USER_UPDATED'){return}
-    if(mode==='recovery') return;
-    if(loadedFor!==s.user.id&&!loading){
-      // On laisse Supabase finir son callback avant d'appeler la base
-      setTimeout(loadAll,0);
-    }
+    if(ev==='PASSWORD_RECOVERY'){mode='recovery';authMsg='';authErr=false}
+    else if(ev==='SIGNED_OUT'){mode='login'}
+    if(ev==='TOKEN_REFRESHED') return;
+    render();
   });
-  render();
 }
-start();
+render();
 })();
 </script>
 </body>
