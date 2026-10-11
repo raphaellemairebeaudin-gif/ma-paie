@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mon app</title>
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mon app">
@@ -14,78 +15,102 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <style>
 :root{
-  --bg:#FFFFFF; --card:#FFFFFF; --ink:#1C1C1E; --muted:#6B6B70; --line:#E4E4E9; --field:#F2F2F7;
-  --brand:#00874E; --brand-text:#00874E; --on-brand:#FFFFFF; --over:#D13B2F;
+  --bg:#EDEDED; --card:#FFFFFF; --ink:#333333; --muted:#6B6B6B; --line:#D6D6D6; --field:#BDBDBD;
+  --brand:#00874E; --link:#007A45; --bar:#05603A; --over:#C0392B; --shadow:0 1px 6px rgba(0,0,0,.14);
   box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A; --field:#2C2C2E;
-    --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF; --over:#FF6B5E;
+  :root{
+    --bg:#000000; --card:#1C1C1E; --ink:#F2F2F2; --muted:#98989F; --line:#38383A; --field:#58585C;
+    --brand:#00874E; --link:#3CCB8A; --bar:#0A3D28; --over:#FF6B5E; --shadow:none;
   }
 }
-:root[data-theme="dark"]{
-  --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A; --field:#2C2C2E;
-  --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF; --over:#FF6B5E;
-}
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg);height:100%}
+html{background:var(--card);height:100%}
 *,*::before,*::after{box-sizing:inherit}
 body{
-  margin:0;background:var(--bg);color:var(--ink);height:100%;
+  margin:0;background:var(--bg);color:var(--ink);min-height:100%;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,system-ui,sans-serif;
-  font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%;
+  font-size:17px;line-height:1.4;-webkit-text-size-adjust:100%;
 }
-html.authbg,body.authbg{background:var(--brand)}
-h1,p{margin:0}
+body.white{background:var(--card)}
+h1,h2,p{margin:0}
+:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+
+/* En-tête blanc */
+.hdr{
+  background:var(--card);border-bottom:1px solid var(--line);
+  padding:env(safe-area-inset-top,0px) 16px 0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.hdr>*{min-height:56px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--link);font-weight:700;font-size:24px;letter-spacing:-0.01em}
+.brand img{width:30px;height:30px;border-radius:7px}
+.htitle{flex:1;min-width:0;font-size:19px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center}
+.iconbtn{background:none;border:0;color:var(--ink);padding:0 4px;display:grid;place-items:center;cursor:pointer;min-width:44px}
+.iconbtn svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* Première page : plein écran, sans défilement */
+html.lock{overflow:hidden;overscroll-behavior:none}
+html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
+.welcome{height:100%;display:flex;flex-direction:column}
+.wgray{flex:1;min-height:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding:16px 24px 40px}
+.wgray svg{width:min(100%,340px);height:auto;max-height:100%}
+.sheet{
+  background:var(--card);border-radius:24px 24px 0 0;margin-top:-24px;position:relative;
+  padding:26px 16px calc(36px + env(safe-area-inset-bottom,0px));
+}
+.sheet h1{font-size:23px;font-weight:700;margin:0 0 22px 0}
+.gbtn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:12px;
+  background:var(--brand);color:#fff;border:0;border-radius:8px;
+  font:inherit;font-size:19px;font-weight:700;padding:14px 16px;min-height:50px;cursor:pointer;
+}
+.gbtn svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pill{
+  display:block;margin:22px auto 0;background:var(--card);color:var(--link);
+  border:1.5px solid var(--link);border-radius:999px;font:inherit;font-size:18px;padding:9px 24px;cursor:pointer;
+}
 
 /* Pages de connexion */
-.auth{max-width:440px;margin:0 auto;padding:16px 20px calc(40px + env(safe-area-inset-bottom,0px));color:var(--on-brand)}
-.back{background:none;border:0;color:var(--on-brand);font:inherit;font-size:16px;cursor:pointer;padding:10px 0}
-.auth .mark{display:flex;align-items:center;gap:12px;margin:18px 0 26px}
-.auth .mark img{width:44px;height:44px;border-radius:10px}
-.auth .mark span{font-size:28px;font-weight:700;letter-spacing:-0.02em}
-.card{background:var(--card);border-radius:14px;overflow:hidden;color:var(--ink)}
-.auth h1{font-size:20px;font-weight:700;padding:16px 16px 0}
-.form{padding:14px 16px 16px}
-label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-input{
-  width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);
-  border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+.formpage{padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
+.fcard{background:var(--card);box-shadow:var(--shadow);padding:22px 20px 26px}
+.flabel{display:block;font-size:19px;font-weight:700;margin:0 0 10px}
+.fgroup{margin-bottom:22px}
+.fin{
+  width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--card);
+  border:1px solid var(--field);border-radius:4px;padding:14px 14px;
 }
-.fields{display:grid;gap:10px}
-.btn{
-  font:inherit;font-weight:600;border:0;border-radius:10px;padding:14px 18px;cursor:pointer;
-  background:var(--brand);color:var(--on-brand);width:100%;margin-top:14px;
+.pw{position:relative}
+.pw .fin{padding-right:54px}
+.eye{position:absolute;right:4px;top:0;bottom:0;width:48px;background:none;border:0;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.eye svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.flink{display:block;background:none;border:0;color:var(--link);font:inherit;font-size:17px;text-decoration:underline;padding:6px 0;cursor:pointer;text-align:left}
+.pbtn,.obtn{
+  display:block;margin:26px auto 0;width:78%;min-width:220px;border-radius:6px;
+  font:inherit;font-size:19px;font-weight:700;padding:14px 12px;cursor:pointer;
 }
-.btn[disabled]{opacity:.6}
-:focus-visible{outline:3px solid var(--brand-text);outline-offset:2px}
-.auth :focus-visible{outline-color:#fff}
-.auth .card :focus-visible{outline-color:var(--brand-text)}
-.msg{margin:0 16px 14px;font-size:14px;color:var(--muted)}
+.pbtn{background:var(--brand);color:#fff;border:0;box-shadow:0 2px 4px rgba(0,0,0,.22)}
+.obtn{background:var(--card);color:var(--link);border:2px solid var(--brand);margin-top:20px}
+.pbtn[disabled]{opacity:.6}
+.msg{font-size:16px;color:var(--muted);margin:0 0 18px}
 .msg.err{color:var(--over)}
-.below{text-align:center;margin-top:16px;font-size:15px}
-.link{background:none;border:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
 
-/* Première page : nom en haut à gauche, gros bouton en bas */
-.welcome{height:100%;padding:calc(22px + env(safe-area-inset-top,0px)) 22px 0}
-html.lock{padding-top:0;height:100%;overflow:hidden;overscroll-behavior:none}
-html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
-.wname{font-size:30px;font-weight:700;letter-spacing:-0.02em;line-height:1.15}
-.bigbtn{
-  position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:10px;
-  background:var(--brand);color:var(--on-brand);border:0;font:inherit;font-size:18px;font-weight:600;
-  padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px));cursor:pointer;
+/* Page principale : vide, avec en-tête et barre d'onglets */
+.home{min-height:100vh}
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bar);color:#fff;
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));
 }
-.bigbtn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.bigbtn:focus-visible{outline-color:#fff;outline-offset:-5px}
+.tabbar button{
+  flex:0 0 20%;background:none;border:0;color:rgba(255,255,255,.75);font:inherit;font-size:14px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0;cursor:pointer;
+}
+.tabbar button svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-current="page"]{color:#fff;font-weight:700}
+.tabbar button[aria-current="page"] span{border-bottom:3px solid #fff;padding-bottom:2px}
+.tabbar button:focus-visible{outline-color:#fff}
 
-/* Page principale : blanche */
-.home{min-height:100%}
-.signout{
-  position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:12px;
-  background:none;border:0;color:var(--muted);font:inherit;font-size:14px;cursor:pointer;padding:10px;
-}
+.cfg{padding:16px}
 </style>
 </head>
 <body>
@@ -118,64 +143,90 @@ function configured(){
   return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
 }
 
-function mark(){return '<div class="mark"><img src="icon-192.png" alt=""><span>'+esc(APP_NAME)+'</span></div>'}
+/* ---------- Icônes ---------- */
+var I_PERSON='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c0-3.9 3.4-6 7.5-6s7.5 2.1 7.5 6"/></svg>';
+var I_X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
+var I_EYE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+var I_HOME='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2L12 4l8.5 7.2V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>';
+var I_OUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10"/><path d="M9 12h11M16 8l4 4-4 4"/></svg>';
+var ILLU='<svg viewBox="0 0 320 240" aria-hidden="true">'+
+  '<circle cx="222" cy="128" r="92" fill="#00874E"/>'+
+  '<rect x="26" y="52" width="150" height="100" rx="16" fill="#BFE3CF" transform="rotate(-9 101 102)"/>'+
+  '<g transform="rotate(5 180 156)">'+
+    '<rect x="78" y="98" width="196" height="116" rx="16" fill="#FFFFFF" stroke="#D6D6D6"/>'+
+    '<rect x="78" y="106" width="6" height="100" rx="3" fill="#00874E"/>'+
+    '<rect x="104" y="124" width="74" height="15" rx="7.5" fill="#00874E"/>'+
+    '<rect x="104" y="152" width="118" height="9" rx="4.5" fill="#D6D6D6"/>'+
+    '<rect x="104" y="172" width="84" height="9" rx="4.5" fill="#D6D6D6"/>'+
+  '</g></svg>';
 
+function logo(){return '<img src="icon-192.png" alt="">'}
+function hdr(inner){return '<header class="hdr">'+inner+'</header>'}
+
+/* ---------- Pages ---------- */
 function viewConfig(){
-  return '<div class="auth">'+mark()+'<section class="card"><h1>Configuration manquante</h1>'+
-    '<div class="form"><p class="muted" style="color:var(--muted)">Ouvre le fichier <b>config.js</b> et remplace l\u2019adresse du projet Supabase et la clé publique, puis recharge la page.</p></div></section></div>';
+  return hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>')+
+    '<div class="cfg"><div class="fcard"><h2 class="flabel">Configuration manquante</h2>'+
+    '<p class="msg">Ouvre le fichier <b>config.js</b> et remplace l\u2019adresse du projet Supabase et la clé publique, puis recharge la page.</p></div></div>';
+}
+
+function viewWelcome(){
+  return '<main class="welcome">'+
+    hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>')+
+    '<div class="wgray">'+ILLU+'</div>'+
+    '<section class="sheet"><h1>Bienvenue</h1>'+
+      '<button class="gbtn" data-act="goform">'+I_PERSON+'<span>Se connecter</span></button>'+
+      '<button class="pill" data-act="gosignup">Créer un compte</button>'+
+    '</section></main>';
 }
 
 function viewAuth(){
   var titles={login:'Connexion',signup:'Créer un compte',forgot:'Mot de passe oublié',recovery:'Nouveau mot de passe'};
   var btn={login:'Se connecter',signup:'Créer mon compte',forgot:'Envoyer le lien',recovery:'Enregistrer'}[mode];
-  var fields='';
-  if(mode!=='recovery') fields+='<div><label for="a-mail">Courriel</label><input id="a-mail" name="email" type="email" autocomplete="email" inputmode="email" required></div>';
-  if(mode!=='forgot') fields+='<div><label for="a-pw">'+(mode==='recovery'?'Nouveau mot de passe':'Mot de passe')+'</label><input id="a-pw" name="password" type="password" minlength="6" autocomplete="'+(mode==='login'?'current-password':'new-password')+'" required></div>';
-  var below='';
-  if(mode==='login') below='<button class="link" data-act="mode" data-mode="signup">Créer un compte</button><br><button class="link" data-act="mode" data-mode="forgot">Mot de passe oublié</button>';
-  else if(mode==='signup'||mode==='forgot') below='<button class="link" data-act="mode" data-mode="login">J\u2019ai déjà un compte</button>';
-  return '<div class="auth">'+(mode==='recovery'?'':'<button class="back" data-act="back">\u2039 Retour</button>')+mark()+
-    '<section class="card"><h1>'+titles[mode]+'</h1>'+
-    '<form class="form" data-form="auth"><div class="fields">'+fields+'</div>'+
-    '<button class="btn" type="submit">'+btn+'</button></form>'+
+  var head=hdr((mode==='recovery'?'':'<button class="iconbtn" data-act="back" aria-label="Fermer">'+I_X+'</button>')+'<h2 class="htitle">'+titles[mode]+'</h2>');
+  var f='';
+  if(mode!=='recovery') f+='<div class="fgroup"><label class="flabel" for="a-mail">Courriel</label><input class="fin" id="a-mail" name="email" type="email" autocomplete="email" inputmode="email" required></div>';
+  if(mode!=='forgot'){
+    f+='<div class="fgroup"><label class="flabel" for="a-pw">'+(mode==='recovery'?'Nouveau mot de passe':'Mot de passe')+'</label>'+
+      '<div class="pw"><input class="fin" id="a-pw" name="password" type="password" minlength="6" autocomplete="'+(mode==='login'?'current-password':'new-password')+'" required>'+
+      '<button type="button" class="eye" data-act="toggle-pw" aria-label="Afficher ou masquer le mot de passe">'+I_EYE+'</button></div>'+
+      (mode==='login'?'<button type="button" class="flink" data-act="mode" data-mode="forgot" style="margin-top:12px">Mot de passe oublié?</button>':'')+
+    '</div>';
+  }
+  var second='';
+  if(mode==='login') second='<button type="button" class="obtn" data-act="mode" data-mode="signup">Créer un compte</button>';
+  else if(mode==='signup') second='<button type="button" class="obtn" data-act="mode" data-mode="login">J\u2019ai déjà un compte</button>';
+  else if(mode==='forgot') second='<button type="button" class="obtn" data-act="mode" data-mode="login">Retour à la connexion</button>';
+  return head+'<main class="formpage"><section class="fcard">'+
     (authMsg?'<p class="msg'+(authErr?' err':'')+'" role="alert">'+esc(authMsg)+'</p>':'')+
-    '</section><p class="below">'+below+'</p></div>';
-}
-
-function viewWelcome(){
-  return '<main class="welcome"><h1 class="wname">'+esc(APP_NAME)+'</h1>'+
-    '<button class="bigbtn" data-act="goform"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c0-3.9 3.4-6 7.5-6s7.5 2.1 7.5 6"/></svg><span>Se connecter</span></button></main>';
+    '<form data-form="auth">'+f+'<button class="pbtn" type="submit">'+btn+'</button></form>'+second+
+    '</section></main>';
 }
 
 function viewHome(){
-  return '<main class="home"><button class="signout" data-act="signout">Se déconnecter</button></main>';
-}
-
-function setTheme(authLook){
-  try{
-    var dark=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var c=authLook?(dark?'#0A5A39':'#00874E'):(dark?'#000000':'#FFFFFF');
-    var m=document.querySelector('meta[name="theme-color"]');
-    if(m) m.setAttribute('content',c);
-  }catch(e){}
+  return '<div class="home">'+
+    hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>'+
+        '<button class="iconbtn" data-act="signout" aria-label="Se déconnecter">'+I_OUT+'</button>')+
+    '<main></main>'+
+    '<nav class="tabbar" aria-label="Navigation principale"><button aria-current="page">'+I_HOME+'<span>Accueil</span></button></nav>'+
+  '</div>';
 }
 
 function render(){
-  var app=$('app'), authLook=true, lock=false, html;
+  var html, lock=false, white=false;
   if(!configured()) html=viewConfig();
   else if(mode==='recovery') html=viewAuth();
   else if(!session){
-    if(view==='welcome'){html=viewWelcome();authLook=false;lock=true}
+    if(view==='welcome'){html=viewWelcome();lock=true}
     else html=viewAuth();
   }
-  else {html=viewHome();authLook=false}
-  app.innerHTML=html;
+  else {html=viewHome();white=true}
+  $('app').innerHTML=html;
   document.documentElement.classList.toggle('lock',lock);
-  document.documentElement.classList.toggle('authbg',authLook);
-  document.body.classList.toggle('authbg',authLook);
-  setTheme(authLook);
+  document.body.classList.toggle('white',white);
 }
 
+/* ---------- Actions ---------- */
 function guard(fn){
   if(busy) return Promise.resolve();
   busy=true;
@@ -185,10 +236,17 @@ function guard(fn){
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-act]');
   if(!b) return;
-  if(b.dataset.act==='goform'){view='form';mode='login';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
-  if(b.dataset.act==='back'){view='welcome';mode='login';authMsg='';authErr=false;render();return}
-  if(b.dataset.act==='mode'){mode=b.dataset.mode;authMsg='';authErr=false;render();return}
-  if(b.dataset.act==='signout'){guard(async function(){await sb.auth.signOut()})}
+  var act=b.dataset.act;
+  if(act==='goform'){view='form';mode='login';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
+  if(act==='gosignup'){view='form';mode='signup';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
+  if(act==='back'){view='welcome';mode='login';authMsg='';authErr=false;render();return}
+  if(act==='mode'){mode=b.dataset.mode;authMsg='';authErr=false;render();return}
+  if(act==='toggle-pw'){
+    var pw=$('a-pw');
+    if(pw) pw.type=(pw.type==='password')?'text':'password';
+    return;
+  }
+  if(act==='signout'){guard(async function(){await sb.auth.signOut()})}
 });
 
 document.addEventListener('submit',function(e){
@@ -219,6 +277,7 @@ document.addEventListener('submit',function(e){
   });
 });
 
+/* ---------- Démarrage ---------- */
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
 }
