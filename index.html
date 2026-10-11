@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mon app</title>
-<meta name="theme-color" content="#00874E">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mon app">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -29,14 +29,14 @@
   --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A; --field:#2C2C2E;
   --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF; --over:#FF6B5E;
 }
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--brand);height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg);height:100%}
 *,*::before,*::after{box-sizing:inherit}
 body{
   margin:0;background:var(--bg);color:var(--ink);height:100%;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,system-ui,sans-serif;
   font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%;
 }
-body.authbg{background:var(--brand)}
+html.authbg,body.authbg{background:var(--brand)}
 h1,p{margin:0}
 
 /* Pages de connexion */
@@ -68,7 +68,9 @@ input{
 .link{background:none;border:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
 
 /* Première page : nom en haut à gauche, gros bouton en bas */
-.welcome{padding:22px 22px 0}
+.welcome{height:100%;padding:calc(22px + env(safe-area-inset-top,0px)) 22px 0}
+html.lock{padding-top:0;height:100%;overflow:hidden;overscroll-behavior:none}
+html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
 .wname{font-size:30px;font-weight:700;letter-spacing:-0.02em;line-height:1.15}
 .bigbtn{
   position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:10px;
@@ -149,17 +151,29 @@ function viewHome(){
   return '<main class="home"><button class="signout" data-act="signout">Se déconnecter</button></main>';
 }
 
+function setTheme(authLook){
+  try{
+    var dark=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var c=authLook?(dark?'#0A5A39':'#00874E'):(dark?'#000000':'#FFFFFF');
+    var m=document.querySelector('meta[name="theme-color"]');
+    if(m) m.setAttribute('content',c);
+  }catch(e){}
+}
+
 function render(){
-  var app=$('app'), authLook=true, html;
+  var app=$('app'), authLook=true, lock=false, html;
   if(!configured()) html=viewConfig();
   else if(mode==='recovery') html=viewAuth();
   else if(!session){
-    if(view==='welcome'){html=viewWelcome();authLook=false}
+    if(view==='welcome'){html=viewWelcome();authLook=false;lock=true}
     else html=viewAuth();
   }
   else {html=viewHome();authLook=false}
   app.innerHTML=html;
+  document.documentElement.classList.toggle('lock',lock);
+  document.documentElement.classList.toggle('authbg',authLook);
   document.body.classList.toggle('authbg',authLook);
+  setTheme(authLook);
 }
 
 function guard(fn){
