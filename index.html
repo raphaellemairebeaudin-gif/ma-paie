@@ -74,6 +74,10 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 /* Pages de connexion */
 .formpage{padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
 .fcard{background:var(--card);box-shadow:var(--shadow);padding:22px 20px 26px}
+.onboarding{padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto}
+.onboarding .fcard{border-radius:10px}
+.onboarding h1{font-size:23px;margin:0 0 8px}
+.onboarding .msg{margin-bottom:22px}
 .flabel{display:block;font-size:19px;font-weight:700;margin:0 0 10px}
 .fgroup{margin-bottom:22px}
 .fin{
@@ -94,45 +98,39 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .pbtn[disabled]{opacity:.6}
 .msg{font-size:16px;color:var(--muted);margin:0 0 18px}
 .msg.err{color:var(--over)}
+.profile-wait{padding:28px 16px;color:var(--muted);text-align:center}
 
-/* Page principale : vide, avec en-tête et barre d'onglets */
-.home{min-height:100vh}
-.home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px;align-content:start}
-.home-tile{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:1.586;border:1px solid rgba(255,255,255,.38);border-radius:14px;padding:12px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;font-size:12px;font-weight:700;box-shadow:0 5px 14px rgba(0,0,0,.2)}
-.home-tile::before,.home-tile::after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none}
-.home-tile::before{width:140px;height:140px;right:-48px;top:-62px;background:rgba(255,255,255,.13)}
-.home-tile::after{width:112px;height:112px;right:10px;bottom:-78px;background:rgba(0,0,0,.13)}
-.home-credit{background:linear-gradient(135deg,#334A72,#172A4A 72%)}
-.home-debit{background:linear-gradient(135deg,#138A5B,#07583E 72%)}
-.home-cardtop,.home-cardmiddle,.home-cardbottom{position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px}
-.home-cardtop{letter-spacing:.08em}
-.home-chip{width:30px;height:23px;flex:0 0 auto;border:1px solid rgba(105,75,22,.45);border-radius:5px;background:linear-gradient(135deg,#F7E2A0,#C9A64B);position:relative;overflow:hidden}
-.home-chip::before,.home-chip::after{content:"";position:absolute;border:1px solid rgba(105,75,22,.4)}
-.home-chip::before{inset:0 9px}
-.home-chip::after{inset:7px 0}
-.home-contactless{width:22px;height:22px;stroke:rgba(255,255,255,.85);fill:none;stroke-width:1.7;stroke-linecap:round}
-.home-cardbottom{align-items:flex-end}
-.home-balancelabel{display:block;font-size:9px;font-weight:500;letter-spacing:.1em;opacity:.8}
-.home-balance{font-size:19px;font-weight:700;line-height:1.1}
-.home-tile{font-family:inherit;text-align:left}
-button.home-tile{width:100%;cursor:pointer}
-button.home-tile:hover{filter:brightness(1.08)}
-button.home-tile:focus-visible{outline:3px solid var(--link);outline-offset:3px}
-.card-detail{padding:20px 16px}
+/* Page principale */
+.home{min-height:100vh;min-height:100dvh;padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
+.home>.hdr{position:sticky;top:0;z-index:2}
+.home-grid{background:var(--bg);min-height:calc(100vh - 57px);padding:24px 16px 28px}
+.home-section-title{font-size:22px;font-weight:700;margin:0 0 20px}
+.home-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.home-tile{position:relative;overflow:hidden;aspect-ratio:1.23;border:1px solid var(--line);border-radius:16px;padding:16px 12px 14px 17px;background:var(--card);color:var(--ink);display:flex;flex-direction:column;align-items:flex-start;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.2);font:inherit}
+.home-tile::before{content:"";position:absolute;left:0;top:9%;bottom:9%;width:4px;border-radius:0 3px 3px 0;background:var(--brand)}
+.home-cardtop,.home-cardmiddle,.home-cardbottom{position:relative}
+.home-cardtop{font-size:20px;font-weight:700;line-height:1.2}
+.home-cardmiddle{font-size:15px;margin-top:5px}
+.home-cardbottom{margin-top:auto;color:var(--muted);font-size:12px;line-height:1.3}
+.home-tile{cursor:pointer}
+.home-tile:hover{box-shadow:0 3px 10px rgba(0,0,0,.24)}
+.home-tile:focus-visible{outline:3px solid var(--link);outline-offset:3px}
+.card-detail{background:var(--bg);min-height:calc(100vh - 57px);padding:28px 16px}
 .card-detail .home-tile{width:100%;max-width:440px;margin:0 auto}
-.card-detail-summary{max-width:440px;margin:24px auto 0;padding:18px;background:var(--card);border-radius:10px;box-shadow:var(--shadow)}
+.card-detail-summary{max-width:440px;margin:20px auto 0;padding:18px;background:var(--card);border-radius:12px;box-shadow:var(--shadow)}
 .card-detail-summary .home-balance{display:block;margin-top:6px;color:var(--ink)}
 .tabbar{
-  position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bar);color:#fff;
-  padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));
+  position:fixed;left:0;right:0;bottom:0;z-index:3;display:flex;background:var(--bar);color:#fff;
+  padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 8px rgba(0,0,0,.14)
 }
 .tabbar button{
-  flex:0 0 20%;background:none;border:0;color:rgba(255,255,255,.75);font:inherit;font-size:14px;
-  display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0;cursor:pointer;
+  flex:1 1 20%;min-width:0;background:none;border:0;color:rgba(255,255,255,.68);font:inherit;font-size:12px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;
 }
-.tabbar button svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button[aria-current="page"]{color:#fff;font-weight:700}
 .tabbar button[aria-current="page"] span{border-bottom:3px solid #fff;padding-bottom:2px}
+.tabbar button:disabled{opacity:.78;cursor:default}
 .tabbar button:focus-visible{outline-color:#fff}
 
 .cfg{padding:16px}
@@ -163,7 +161,7 @@ function frErr(m){
   return m||'Une erreur est survenue.';
 }
 
-var sb=null, session=null, mode='login', view='welcome', activeCard=null, authMsg='', authErr=false, busy=false;
+var sb=null, session=null, mode='login', view='welcome', activeCard=null, profile=null, profileStatus='loading', profileError='', profileRequestId=0, authMsg='', authErr=false, busy=false;
 function configured(){
   return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
 }
@@ -228,33 +226,109 @@ function viewAuth(){
     '</section></main>';
 }
 
+function viewOnboarding(){
+  return hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>'+
+      '<button class="iconbtn" data-act="signout" aria-label="Se déconnecter">'+I_OUT+'</button>')+
+    '<main class="onboarding"><section class="fcard">'+
+      '<h1>Complète ton profil</h1>'+
+      '<p class="msg">Ajoute ton nom et tes soldes actuels pour personnaliser tes comptes. N’inscris aucun numéro de carte ni code de sécurité.</p>'+
+      (authMsg?'<p class="msg'+(authErr?' err':'')+'" role="alert">'+esc(authMsg)+'</p>':'')+
+      '<form data-form="profile">'+
+        '<div class="fgroup"><label class="flabel" for="p-first">Prénom</label><input class="fin" id="p-first" name="first_name" autocomplete="given-name" maxlength="80" required></div>'+
+        '<div class="fgroup"><label class="flabel" for="p-last">Nom</label><input class="fin" id="p-last" name="last_name" autocomplete="family-name" maxlength="80" required></div>'+
+        '<div class="fgroup"><label class="flabel" for="p-debit">Solde actuel de débit ($)</label><input class="fin" id="p-debit" name="debit_balance" type="number" step="0.01" min="-9999999999.99" max="9999999999.99" value="0" inputmode="decimal" required></div>'+
+        '<div class="fgroup"><label class="flabel" for="p-credit">Solde actuel de crédit ($)</label><input class="fin" id="p-credit" name="credit_balance" type="number" step="0.01" min="-9999999999.99" max="9999999999.99" value="0" inputmode="decimal" required></div>'+
+        '<button class="pbtn" type="submit">Enregistrer mon profil</button>'+
+      '</form>'+
+    '</section></main>';
+}
+
+function viewProfileStatus(){
+  if(profileStatus==='loading') return hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>')+
+    '<main class="profile-wait" role="status">Chargement de ton profil…</main>';
+  return hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>')+
+    '<main class="onboarding"><section class="fcard"><h1>Profil inaccessible</h1>'+
+      '<p class="msg err" role="alert">'+esc(profileError)+'</p>'+
+      '<p class="msg">Vérifie que le script SQL fourni avec l’application a été exécuté dans Supabase.</p>'+
+      '<button class="pbtn" type="button" data-act="retry-profile">Réessayer</button>'+
+      '<button class="obtn" type="button" data-act="signout">Se déconnecter</button>'+
+    '</section></main>';
+}
+
+function loadProfile(userId,requestId){
+  return sb.from('app_profiles').select('id,first_name,last_name,debit_balance,credit_balance').eq('id',userId).maybeSingle()
+    .then(function(result){
+      if(requestId!==profileRequestId||!session||session.user.id!==userId) return;
+      if(result.error){
+        profileStatus='error';
+        profileError='Impossible de charger ton profil : '+result.error.message;
+      }else if(result.data){
+        profile=result.data;
+        profileStatus='ready';
+        profileError='';
+      }else{
+        profile=null;
+        profileStatus='missing';
+        profileError='';
+      }
+      render();
+    }).catch(function(error){
+      if(requestId!==profileRequestId) return;
+      profileStatus='error';
+      profileError='Impossible de charger ton profil : '+(error&&error.message?error.message:'erreur réseau');
+      render();
+    });
+}
+
+function beginProfileLoad(userId){
+  profile=null;
+  profileStatus='loading';
+  profileError='';
+  var requestId=++profileRequestId;
+  render();
+  window.setTimeout(function(){loadProfile(userId,requestId)},0);
+}
+
+function money(value){
+  return new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD'}).format(Number(value)||0);
+}
+
 function viewHome(){
   return '<div class="home">'+
     hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>'+
         '<button class="iconbtn" data-act="signout" aria-label="Se déconnecter">'+I_OUT+'</button>')+
-    '<main class="home-grid" aria-label="Informations des comptes">'+
-      cardMarkup('debit',true)+cardMarkup('credit',true)+
+    '<main class="home-grid" aria-label="Informations des comptes"><h1 class="home-section-title">Vos comptes</h1>'+
+      '<div class="home-cards">'+cardMarkup('debit',true)+cardMarkup('credit',true)+'</div>'+
     '</main>'+
-    '<nav class="tabbar" aria-label="Navigation principale"><button aria-current="page">'+I_HOME+'<span>Accueil</span></button></nav>'+
+    navMarkup()+
   '</div>';
 }
 
 function cardMarkup(type,interactive){
-  var label=type==='credit'?'CRÉDIT':'DÉBIT';
-  var content='<div class="home-cardtop"><span>'+label+'</span><span>CARTE</span></div>'+
-    '<div class="home-cardmiddle"><span class="home-chip" aria-hidden="true"></span><svg class="home-contactless" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8a6 6 0 0 1 0 8M12 5a10 10 0 0 1 0 14M16 2a14 14 0 0 1 0 20"/></svg></div>'+
-    '<div class="home-cardbottom"><span><span class="home-balancelabel">SOLDE</span><span class="home-balance">0 $</span></span><span>••••</span></div>';
-  if(interactive) return '<button type="button" class="home-tile home-'+type+'" data-act="open-card" data-card="'+type+'" aria-label="Ouvrir la carte '+label.toLowerCase()+'">'+content+'</button>';
-  return '<div class="home-tile home-'+type+'">'+content+'</div>';
+  var label=type==='credit'?'Crédit':'Débit';
+  var balanceLabel=type==='credit'?'Solde actuel':'Solde disponible';
+  var amount=profile?money(type==='credit'?profile.credit_balance:profile.debit_balance):money(0);
+  var content='<span class="home-cardtop">'+amount+'</span>'+
+    '<span class="home-cardmiddle">'+label+'</span>'+
+    '<span class="home-cardbottom">'+balanceLabel+'</span>';
+  if(interactive) return '<button type="button" class="home-tile" data-act="open-card" data-card="'+type+'" aria-label="Ouvrir le compte '+label.toLowerCase()+'">'+content+'</button>';
+  return '<div class="home-tile">'+content+'</div>';
+}
+
+function navMarkup(){
+  return '<nav class="tabbar" aria-label="Navigation principale">'+
+    '<button type="button" data-act="home" aria-current="page">'+I_HOME+'<span>Accueil</span></button>'+
+  '</nav>';
 }
 
 function viewCard(){
   var type=activeCard==='credit'?'credit':'debit';
   var title=type==='credit'?'Carte de crédit':'Carte de débit';
+  var amount=profile?money(type==='credit'?profile.credit_balance:profile.debit_balance):money(0);
   return hdr('<button class="iconbtn" data-act="home" aria-label="Retour à l’accueil">'+I_X+'</button><h2 class="htitle">'+title+'</h2><span class="iconbtn" aria-hidden="true"></span>')+
     '<main class="card-detail">'+cardMarkup(type,false)+
-      '<section class="card-detail-summary"><span class="home-balancelabel">SOLDE</span><span class="home-balance">0 $</span></section>'+
-    '</main>';
+      '<section class="card-detail-summary"><span class="home-cardbottom">'+(type==='credit'?'Solde actuel':'Solde disponible')+'</span><span class="home-balance">'+amount+'</span></section>'+
+    '</main>'+navMarkup();
 }
 
 function render(){
@@ -265,6 +339,8 @@ function render(){
     if(view==='welcome'){html=viewWelcome();lock=true}
     else html=viewAuth();
   }
+  else if(profileStatus==='loading'||profileStatus==='error') html=viewProfileStatus();
+  else if(profileStatus==='missing') html=viewOnboarding();
   else {html=activeCard?viewCard():viewHome();white=true}
   $('app').innerHTML=html;
   document.documentElement.classList.toggle('lock',lock);
@@ -287,6 +363,7 @@ document.addEventListener('click',function(e){
   if(act==='back'){view='welcome';mode='login';authMsg='';authErr=false;render();return}
   if(act==='open-card'){activeCard=b.dataset.card==='credit'?'credit':'debit';render();window.scrollTo(0,0);return}
   if(act==='home'){activeCard=null;render();window.scrollTo(0,0);return}
+  if(act==='retry-profile'&&session){profileStatus='loading';profileError='';var requestId=++profileRequestId;render();loadProfile(session.user.id,requestId);return}
   if(act==='mode'){mode=b.dataset.mode;authMsg='';authErr=false;render();return}
   if(act==='toggle-pw'){
     var pw=$('a-pw');
@@ -297,6 +374,38 @@ document.addEventListener('click',function(e){
 });
 
 document.addEventListener('submit',function(e){
+  var pf=e.target.closest('form[data-form="profile"]');
+  if(pf){
+    e.preventDefault();
+    var pfd=new FormData(pf);
+    guard(async function(){
+      authMsg='';authErr=false;
+      var first=String(pfd.get('first_name')||'').trim();
+      var last=String(pfd.get('last_name')||'').trim();
+      var debitRaw=String(pfd.get('debit_balance')||'');
+      var creditRaw=String(pfd.get('credit_balance')||'');
+      var debit=Number(debitRaw);
+      var credit=Number(creditRaw);
+      if(!first||!last||!debitRaw||!creditRaw||!Number.isFinite(debit)||!Number.isFinite(credit)){
+        authMsg='Entre un prénom, un nom et des montants valides.';
+        authErr=true;
+        return;
+      }
+      var result=await sb.from('app_profiles').upsert({
+        id:session.user.id,
+        first_name:first,
+        last_name:last,
+        debit_balance:debit,
+        credit_balance:credit
+      }).select('id,first_name,last_name,debit_balance,credit_balance').single();
+      if(result.error) throw new Error(result.error.message);
+      profile=result.data;
+      profileStatus='ready';
+      profileError='';
+      activeCard=null;
+    });
+    return;
+  }
   var f=e.target.closest('form[data-form="auth"]');
   if(!f) return;
   e.preventDefault();
@@ -319,7 +428,7 @@ document.addEventListener('submit',function(e){
     }else if(mode==='recovery'){
       var r4=await sb.auth.updateUser({password:pw});
       if(r4.error){authMsg=frErr(r4.error.message);authErr=true}
-      else{authMsg='';mode='login'}
+      else{authMsg='';mode='login';if(session) beginProfileLoad(session.user.id)}
     }
   });
 });
@@ -333,8 +442,12 @@ if(configured()){
   sb.auth.onAuthStateChange(function(ev,s){
     session=s;
     if(ev==='PASSWORD_RECOVERY'){mode='recovery';view='form';authMsg='';authErr=false}
-    else if(ev==='SIGNED_OUT'){mode='login';view='welcome';activeCard=null}
+    else if(ev==='SIGNED_OUT'){mode='login';view='welcome';activeCard=null;profile=null;profileStatus='loading';profileError='';profileRequestId++}
     if(ev==='TOKEN_REFRESHED') return;
+    if(s&&s.user&&mode!=='recovery'){
+      beginProfileLoad(s.user.id);
+      return;
+    }
     render();
   });
 }
