@@ -44,3 +44,9 @@ désactive **Allow new users to sign up** pour que personne d'autre ne puisse cr
 - **« Configuration manquante »** : `config.js` n'a pas été modifié, ou les fichiers ne sont pas à la racine du dépôt.
 - **Ancienne version qui s'affiche** : ferme l'app complètement et rouvre-la, ou recharge la page dans Safari.
 - **Le lien du courriel ouvre une mauvaise page** : revois l'étape 3.
+
+## Changer le nom du site
+
+- Nom affiché dans l'app (première page, connexion, onglet du navigateur) : `APP_NAME` dans `config.js`.
+- Nom sous l'icône sur l'écran d'accueil : `name` et `short_name` dans `manifest.webmanifest`, et la ligne `apple-mobile-web-app-title` dans `index.html`.
+  Si l'app est déjà sur ton écran d'accueil, retire-la et ajoute-la de nouveau pour que le nouveau nom apparaisse.

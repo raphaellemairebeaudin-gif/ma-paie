@@ -18,7 +18,6 @@
   --brand:#00874E; --brand-text:#00874E; --on-brand:#FFFFFF; --over:#D13B2F;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -30,18 +29,19 @@
   --bg:#000000; --card:#1C1C1E; --ink:#FFFFFF; --muted:#98989F; --line:#38383A; --field:#2C2C2E;
   --brand:#0A5A39; --brand-text:#3CCB8A; --on-brand:#FFFFFF; --over:#FF6B5E;
 }
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg);height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--brand);height:100%}
 *,*::before,*::after{box-sizing:inherit}
 body{
   margin:0;background:var(--bg);color:var(--ink);height:100%;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,system-ui,sans-serif;
   font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%;
 }
-body.authbg,html.authbg{background:var(--brand)}
+body.authbg{background:var(--brand)}
 h1,p{margin:0}
 
 /* Pages de connexion */
-.auth{max-width:440px;margin:0 auto;padding:28px 20px 40px;color:var(--on-brand)}
+.auth{max-width:440px;margin:0 auto;padding:16px 20px calc(40px + env(safe-area-inset-bottom,0px));color:var(--on-brand)}
+.back{background:none;border:0;color:var(--on-brand);font:inherit;font-size:16px;cursor:pointer;padding:10px 0}
 .auth .mark{display:flex;align-items:center;gap:12px;margin:18px 0 26px}
 .auth .mark img{width:44px;height:44px;border-radius:10px}
 .auth .mark span{font-size:28px;font-weight:700;letter-spacing:-0.02em}
@@ -67,6 +67,17 @@ input{
 .below{text-align:center;margin-top:16px;font-size:15px}
 .link{background:none;border:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
 
+/* Première page : nom en haut à gauche, gros bouton en bas */
+.welcome{padding:22px 22px 0}
+.wname{font-size:30px;font-weight:700;letter-spacing:-0.02em;line-height:1.15}
+.bigbtn{
+  position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--brand);color:var(--on-brand);border:0;font:inherit;font-size:18px;font-weight:600;
+  padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px));cursor:pointer;
+}
+.bigbtn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bigbtn:focus-visible{outline-color:#fff;outline-offset:-5px}
+
 /* Page principale : blanche */
 .home{min-height:100%}
 .signout{
@@ -84,6 +95,8 @@ input{
 (function(){
 'use strict';
 var cfg=window.APP_CONFIG||{};
+var APP_NAME=cfg.APP_NAME||'Mon app';
+document.title=APP_NAME;
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function frErr(m){
@@ -98,12 +111,12 @@ function frErr(m){
   return m||'Une erreur est survenue.';
 }
 
-var sb=null, session=null, mode='login', authMsg='', authErr=false, busy=false;
+var sb=null, session=null, mode='login', view='welcome', authMsg='', authErr=false, busy=false;
 function configured(){
   return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
 }
 
-function mark(){return '<div class="mark"><img src="icon-192.png" alt=""><span>Mon app</span></div>'}
+function mark(){return '<div class="mark"><img src="icon-192.png" alt=""><span>'+esc(APP_NAME)+'</span></div>'}
 
 function viewConfig(){
   return '<div class="auth">'+mark()+'<section class="card"><h1>Configuration manquante</h1>'+
@@ -119,12 +132,17 @@ function viewAuth(){
   var below='';
   if(mode==='login') below='<button class="link" data-act="mode" data-mode="signup">Créer un compte</button><br><button class="link" data-act="mode" data-mode="forgot">Mot de passe oublié</button>';
   else if(mode==='signup'||mode==='forgot') below='<button class="link" data-act="mode" data-mode="login">J\u2019ai déjà un compte</button>';
-  return '<div class="auth">'+mark()+
+  return '<div class="auth">'+(mode==='recovery'?'':'<button class="back" data-act="back">\u2039 Retour</button>')+mark()+
     '<section class="card"><h1>'+titles[mode]+'</h1>'+
     '<form class="form" data-form="auth"><div class="fields">'+fields+'</div>'+
     '<button class="btn" type="submit">'+btn+'</button></form>'+
     (authMsg?'<p class="msg'+(authErr?' err':'')+'" role="alert">'+esc(authMsg)+'</p>':'')+
     '</section><p class="below">'+below+'</p></div>';
+}
+
+function viewWelcome(){
+  return '<main class="welcome"><h1 class="wname">'+esc(APP_NAME)+'</h1>'+
+    '<button class="bigbtn" data-act="goform"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c0-3.9 3.4-6 7.5-6s7.5 2.1 7.5 6"/></svg><span>Se connecter</span></button></main>';
 }
 
 function viewHome(){
@@ -134,10 +152,13 @@ function viewHome(){
 function render(){
   var app=$('app'), authLook=true, html;
   if(!configured()) html=viewConfig();
-  else if(mode==='recovery'||!session) html=viewAuth();
+  else if(mode==='recovery') html=viewAuth();
+  else if(!session){
+    if(view==='welcome'){html=viewWelcome();authLook=false}
+    else html=viewAuth();
+  }
   else {html=viewHome();authLook=false}
   app.innerHTML=html;
-  document.documentElement.classList.toggle('authbg',authLook);
   document.body.classList.toggle('authbg',authLook);
 }
 
@@ -150,6 +171,8 @@ function guard(fn){
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-act]');
   if(!b) return;
+  if(b.dataset.act==='goform'){view='form';mode='login';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
+  if(b.dataset.act==='back'){view='welcome';mode='login';authMsg='';authErr=false;render();return}
   if(b.dataset.act==='mode'){mode=b.dataset.mode;authMsg='';authErr=false;render();return}
   if(b.dataset.act==='signout'){guard(async function(){await sb.auth.signOut()})}
 });
@@ -189,8 +212,8 @@ if(configured()){
   sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   sb.auth.onAuthStateChange(function(ev,s){
     session=s;
-    if(ev==='PASSWORD_RECOVERY'){mode='recovery';authMsg='';authErr=false}
-    else if(ev==='SIGNED_OUT'){mode='login'}
+    if(ev==='PASSWORD_RECOVERY'){mode='recovery';view='form';authMsg='';authErr=false}
+    else if(ev==='SIGNED_OUT'){mode='login';view='welcome'}
     if(ev==='TOKEN_REFRESHED') return;
     render();
   });
