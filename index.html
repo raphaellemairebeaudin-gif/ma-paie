@@ -105,10 +105,10 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .home{min-height:100vh;min-height:100dvh;padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
 .home>.hdr{position:sticky;top:0;z-index:2}
 .home-grid{background:var(--bg);min-height:calc(100vh - 57px);padding:24px 16px 28px}
-.home-accounts-panel{padding:16px 12px 18px;border-radius:18px;background:var(--panel)}
+.home-accounts-panel{width:fit-content;max-width:100%;margin:0 auto;padding:16px 12px 18px;border-radius:18px;background:var(--panel)}
 .home-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:22px;font-weight:700;margin:0 0 20px}
 .home-total{flex:0 0 auto;color:var(--link);font-size:18px;font-weight:700}
-.home-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;justify-items:center}
+.home-cards{display:grid;width:max-content;max-width:100%;grid-template-columns:repeat(2,minmax(0,min(36vw,190px)));gap:14px;justify-items:center}
 .home-cards>.home-tile,.home-cards>.home-add-tile{width:96%}
 .home-tile{position:relative;overflow:hidden;aspect-ratio:1.23;border:1px solid var(--line);border-radius:16px;padding:16px 12px 14px 17px;background:var(--card);color:var(--ink);display:flex;flex-direction:column;align-items:flex-start;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.2);font:inherit}
 .home-tile.account-card-green{background:radial-gradient(ellipse at 100% 100%,rgba(117,255,190,.34),transparent 48%),linear-gradient(135deg,#00A86B,#006B45);border-color:#007A4C;color:#fff}
