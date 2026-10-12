@@ -466,6 +466,13 @@ function guard(fn){
   return fn().catch(function(e){authMsg=frErr(e&&e.message);authErr=true}).then(function(){busy=false;render()});
 }
 
+function resetSignedOutState(){
+  session=null;mode='login';view='welcome';activePage='home';activeAccountId=null;
+  profile=null;accounts=[];addAccountOpen=false;addingAccountType='';deleteConfirmId=null;
+  profileStatus='loading';profileError='';profileRequestId++;
+  authMsg='';authErr=false;
+}
+
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-act]');
   if(!b) return;
@@ -523,12 +530,21 @@ document.addEventListener('click',function(e){
   }
   if(act==='signout'){
     guard(async function(){
+      var current=await sb.auth.getSession();
+      if(current.error) throw new Error(current.error.message);
+      if(!current.data.session){
+        resetSignedOutState();
+        return;
+      }
       var result=await sb.auth.signOut({scope:'local'});
-      if(result.error) throw new Error(result.error.message);
-      session=null;mode='login';view='welcome';activePage='home';activeAccountId=null;
-      profile=null;accounts=[];addAccountOpen=false;addingAccountType='';
-      profileStatus='loading';profileError='';profileRequestId++;
-      authMsg='';authErr=false;
+      if(result.error){
+        if(result.error.code==='AuthSessionMissingError'||/auth session missing/i.test(result.error.message||'')){
+          resetSignedOutState();
+          return;
+        }
+        throw new Error(result.error.message);
+      }
+      resetSignedOutState();
     });
   }
 });
@@ -638,7 +654,7 @@ if(configured()){
   sb.auth.onAuthStateChange(function(ev,s){
     session=s;
     if(ev==='PASSWORD_RECOVERY'){mode='recovery';view='form';authMsg='';authErr=false}
-    else if(ev==='SIGNED_OUT'){mode='login';view='welcome';activePage='home';activeAccountId=null;profile=null;accounts=[];addAccountOpen=false;addingAccountType='';deleteConfirmId=null;profileStatus='loading';profileError='';profileRequestId++}
+    else if(ev==='SIGNED_OUT') resetSignedOutState();
     if(ev==='TOKEN_REFRESHED') return;
     if(s&&s.user&&mode!=='recovery'){
       beginProfileLoad(s.user.id);
