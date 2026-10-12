@@ -1,6 +1,6 @@
 {
-  "name": "Mon app",
-  "short_name": "Mon app",
+  "name": "Budget App",
+  "short_name": "Budget App",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

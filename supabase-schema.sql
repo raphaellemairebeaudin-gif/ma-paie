@@ -87,6 +87,7 @@ where not exists (
 alter table public.app_accounts enable row level security;
 
 grant select, insert, delete on public.app_accounts to authenticated;
+grant update (name) on public.app_accounts to authenticated;
 
 drop policy if exists "Users can read their own accounts" on public.app_accounts;
 create policy "Users can read their own accounts"
@@ -105,6 +106,13 @@ create policy "Users can delete their own accounts"
   on public.app_accounts for delete
   to authenticated
   using (user_id = (select auth.uid()));
+
+drop policy if exists "Users can rename their own accounts" on public.app_accounts;
+create policy "Users can rename their own accounts"
+  on public.app_accounts for update
+  to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
 
 create or replace function public.create_initial_profile(
   p_first_name text,

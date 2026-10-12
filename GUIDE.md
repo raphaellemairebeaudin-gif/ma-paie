@@ -1,4 +1,4 @@
-# Mettre « Mon app » en ligne (Supabase + GitHub Pages)
+# Mettre « Budget App » en ligne (Supabase + GitHub Pages)
 
 Cette version contient la connexion, la création de compte, la récupération de mot de passe, un profil et tous les comptes enregistrés dans Supabase. Un nouvel utilisateur commence avec un seul compte Débit. Le bouton « + » permet d’ajouter Débit, Crédit, Placement ou Autre. Débit accepte directement un montant positif ou négatif; Crédit inverse le signe du montant saisi, afin qu’un montant positif représente une dette et qu’un montant négatif soit un crédit en ta faveur. Pour Placement et Autre, l’utilisateur choisit si le montant est de l’argent de côté (positif) ou une dette (négatif). Chaque compte indique aussi son signe et peut être supprimé depuis sa page; l’ajout et la suppression sont enregistrés dans Supabase.
 

@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mon app</title>
+<title>Budget App</title>
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Mon app">
+<meta name="apple-mobile-web-app-title" content="Budget App">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -107,9 +107,10 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .home-grid{background:var(--bg);min-height:calc(100vh - 57px);padding:24px 16px 28px}
 .home-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:22px;font-weight:700;margin:0 0 20px}
 .home-total{flex:0 0 auto;color:var(--link);font-size:18px;font-weight:700}
-.home-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.home-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;justify-items:center}
+.home-cards>.home-tile,.home-cards>.home-add-tile{width:96%}
 .home-tile{position:relative;overflow:hidden;aspect-ratio:1.23;border:1px solid var(--line);border-radius:16px;padding:16px 12px 14px 17px;background:var(--card);color:var(--ink);display:flex;flex-direction:column;align-items:flex-start;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.2);font:inherit}
-.home-add-tile{aspect-ratio:1;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--link);display:grid;place-items:center;font:inherit;font-size:42px;font-weight:400;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer}
+.home-add-tile{aspect-ratio:1.23;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--link);display:grid;place-items:center;font:inherit;font-size:42px;font-weight:400;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer}
 .home-add-tile:hover{box-shadow:0 3px 10px rgba(0,0,0,.24)}
 .home-tile::before{content:"";position:absolute;left:0;top:9%;bottom:9%;width:4px;border-radius:0 3px 3px 0;background:var(--brand)}
 .home-cardtop,.home-cardmiddle,.home-cardbottom{position:relative}
@@ -121,8 +122,8 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .home-tile:focus-visible{outline:3px solid var(--link);outline-offset:3px}
 .card-detail{background:var(--bg);min-height:calc(100vh - 57px);padding:28px 16px}
 .card-detail .home-tile{width:100%;max-width:440px;margin:0 auto}
-.card-detail-summary{max-width:440px;margin:20px auto 0;padding:18px;background:var(--card);border-radius:12px;box-shadow:var(--shadow)}
-.card-detail-summary .home-balance{display:block;margin-top:6px;color:var(--ink)}
+.card-detail .home-tile{padding-right:56px}
+.card-edit-button{position:absolute;top:10px;right:10px;z-index:1;width:40px;height:40px;min-width:40px;border-radius:50%;background:var(--card);box-shadow:var(--shadow)}
 .settings-page{background:var(--bg);min-height:calc(100vh - 57px);padding:24px 16px 28px}
 .settings-card{max-width:560px;margin:0 auto;background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
 .settings-card h1{font-size:22px;margin:0 0 20px}
@@ -149,6 +150,8 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .delete-confirm{display:grid;gap:10px}
 .delete-confirm .delete-action{background:var(--over);color:#fff;border:0}
 .delete-confirm .delete-action:hover{filter:brightness(.92)}
+.edit-account-actions{display:grid;gap:10px}
+.edit-account-actions .delete-action{margin-top:8px;background:var(--card);color:var(--over);border:1px solid var(--over)}
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:3;display:flex;background:var(--bar);color:#fff;
   padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 8px rgba(0,0,0,.14)
@@ -175,7 +178,7 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 (function(){
 'use strict';
 var cfg=window.APP_CONFIG||{};
-var APP_NAME=cfg.APP_NAME||'Mon app';
+var APP_NAME=cfg.APP_NAME||'Budget App';
 document.title=APP_NAME;
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -191,7 +194,7 @@ function frErr(m){
   return m||'Une erreur est survenue.';
 }
 
-var sb=null, session=null, mode='login', view='welcome', activePage='home', activeAccountId=null, profile=null, accounts=[], addAccountOpen=false, addingAccountType='', deleteConfirmId=null, profileStatus='loading', profileError='', profileRequestId=0, authMsg='', authErr=false, busy=false;
+var sb=null, session=null, mode='login', view='welcome', activePage='home', activeAccountId=null, profile=null, accounts=[], addAccountOpen=false, addingAccountType='', editingAccountId=null, deleteConfirmId=null, profileStatus='loading', profileError='', profileRequestId=0, authMsg='', authErr=false, busy=false;
 function configured(){
   return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
 }
@@ -199,6 +202,7 @@ function configured(){
 /* ---------- Icônes ---------- */
 var I_PERSON='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c0-3.9 3.4-6 7.5-6s7.5 2.1 7.5 6"/></svg>';
 var I_X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
+var I_EDIT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
 var I_EYE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 var I_HOME='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2L12 4l8.5 7.2V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>';
 var I_OUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10"/><path d="M9 12h11M16 8l4 4-4 4"/></svg>';
@@ -351,7 +355,10 @@ function extraAccountMarkup(account,interactive){
     '<span class="home-cardmiddle">'+esc(account.name)+'</span>'+
     '<span class="home-cardbottom">'+label+' · '+polarity+'</span>';
   if(interactive) return '<button type="button" class="home-tile" data-act="open-account" data-account-id="'+esc(account.id)+'" aria-label="Ouvrir le compte '+esc(account.name)+'">'+content+'</button>';
-  return '<div class="home-tile">'+content+'</div>';
+  return '<div class="home-tile">'+
+    '<button type="button" class="iconbtn card-edit-button" data-act="edit-account" data-account-id="'+esc(account.id)+'" aria-label="Modifier le compte '+esc(account.name)+'">'+I_EDIT+'</button>'+
+    content+
+  '</div>';
 }
 
 function viewAddAccountModal(){
@@ -419,25 +426,33 @@ function viewCard(){
   var account=accounts.find(function(item){return item.id===activeAccountId});
   if(!account) return viewHome();
   return hdr('<button class="iconbtn" data-act="home" aria-label="Retour à l’accueil">'+I_X+'</button><h2 class="htitle">'+esc(account.name)+'</h2><span class="iconbtn" aria-hidden="true"></span>')+
-    '<main class="card-detail">'+extraAccountMarkup(account,false)+
-      '<section class="card-detail-summary"><span class="home-cardbottom">'+(account.balance_direction==='negative'?'Solde négatif':'Solde positif')+'</span><span class="home-balance">'+money(account.signed_balance)+'</span>'+
-        '<button type="button" class="obtn" data-act="delete-account" data-account-id="'+esc(account.id)+'">Supprimer ce compte</button>'+
-        (authMsg&&authErr?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
-      '</section>'+
-    '</main>'+navMarkup()+(deleteConfirmId?viewDeleteConfirmation():'');
+    '<main class="card-detail">'+extraAccountMarkup(account,false)+'</main>'+
+    navMarkup()+(addAccountOpen&&editingAccountId?viewEditAccountModal():'');
 }
 
-function viewDeleteConfirmation(){
-  var account=accounts.find(function(item){return item.id===deleteConfirmId});
+function viewEditAccountModal(){
+  var account=accounts.find(function(item){return item.id===editingAccountId});
   if(!account) return '';
-  return '<div class="account-overlay" data-act="cancel-delete-account">'+
-    '<section class="account-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description">'+
-      '<h2 id="delete-dialog-title">Supprimer ce compte ?</h2>'+
-      '<p class="account-dialog-intro" id="delete-dialog-description">« '+esc(account.name)+' » et son solde seront supprimés définitivement de Supabase.</p>'+
-      '<div class="delete-confirm">'+
-        '<button type="button" class="pbtn delete-action" data-act="confirm-delete-account" data-account-id="'+esc(account.id)+'">Supprimer le compte</button>'+
-        '<button type="button" class="obtn" data-act="cancel-delete-account">Annuler</button>'+
+  var title=deleteConfirmId===account.id?'Supprimer ce compte ?':'Modifier le compte';
+  var modalBody=deleteConfirmId===account.id?
+    '<p class="account-dialog-intro">« '+esc(account.name)+' » et son solde seront supprimés définitivement de Supabase.</p>'+
+    '<div class="delete-confirm">'+
+      '<button type="button" class="pbtn delete-action" data-act="confirm-delete-account" data-account-id="'+esc(account.id)+'">Supprimer le compte</button>'+
+      '<button type="button" class="obtn" data-act="cancel-delete-account">Annuler</button>'+
+    '</div>':
+    '<p class="account-dialog-intro">Modifie le nom ou supprime ce compte. Son solde actuel est de '+money(account.signed_balance)+'.</p>'+
+    (authMsg&&authErr?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
+    '<form data-form="edit-account" data-account-id="'+esc(account.id)+'">'+
+      '<div class="fgroup"><label class="flabel" for="edit-account-name">Nom du compte</label><input class="fin" id="edit-account-name" name="name" maxlength="80" value="'+esc(account.name)+'" autocomplete="off" required></div>'+
+      '<div class="edit-account-actions">'+
+        '<button class="pbtn" type="submit">Enregistrer le nom</button>'+
+        '<button type="button" class="obtn delete-action" data-act="delete-account" data-account-id="'+esc(account.id)+'">Supprimer ce compte</button>'+
       '</div>'+
+    '</form>';
+  return '<div class="account-overlay" data-act="close-account-modal">'+
+    '<section class="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-dialog-title">'+
+      '<button type="button" class="iconbtn account-close" data-act="close-account-modal" aria-label="Fermer">'+I_X+'</button>'+
+      '<h2 id="account-dialog-title">'+title+'</h2>'+modalBody+
     '</section>'+
   '</div>';
 }
@@ -468,7 +483,7 @@ function guard(fn){
 
 function resetSignedOutState(){
   session=null;mode='login';view='welcome';activePage='home';activeAccountId=null;
-  profile=null;accounts=[];addAccountOpen=false;addingAccountType='';deleteConfirmId=null;
+  profile=null;accounts=[];addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;
   profileStatus='loading';profileError='';profileRequestId++;
   authMsg='';authErr=false;
 }
@@ -479,13 +494,12 @@ document.addEventListener('click',function(e){
   var act=b.dataset.act;
   if(act==='close-account-modal'){
     if(b.classList.contains('account-overlay')&&e.target!==b) return;
-    addAccountOpen=false;addingAccountType='';authMsg='';authErr=false;render();return;
+    addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;authMsg='';authErr=false;render();return;
   }
   if(act==='cancel-delete-account'){
-    if(b.classList.contains('account-overlay')&&e.target!==b) return;
     deleteConfirmId=null;render();return;
   }
-  if(act==='open-account-modal'){addAccountOpen=true;addingAccountType='';authMsg='';authErr=false;render();return}
+  if(act==='open-account-modal'){addAccountOpen=true;addingAccountType='';editingAccountId=null;deleteConfirmId=null;authMsg='';authErr=false;render();return}
   if(act==='select-account-type'){
     var accountType=b.dataset.type;
     if(['debit','credit','investment','other'].indexOf(accountType)===-1) return;
@@ -496,8 +510,13 @@ document.addEventListener('click',function(e){
   if(act==='gosignup'){view='form';mode='signup';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
   if(act==='back'){view='welcome';mode='login';authMsg='';authErr=false;render();return}
   if(act==='open-account'){activeAccountId=b.dataset.accountId;activePage='home';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
-  if(act==='home'){activePage='home';activeAccountId=null;addAccountOpen=false;deleteConfirmId=null;render();window.scrollTo(0,0);return}
-  if(act==='settings'){activePage='settings';activeAccountId=null;addAccountOpen=false;deleteConfirmId=null;render();window.scrollTo(0,0);return}
+  if(act==='edit-account'){
+    var editId=b.dataset.accountId;
+    if(!accounts.some(function(account){return account.id===editId})) return;
+    activeAccountId=editId;editingAccountId=editId;addAccountOpen=true;deleteConfirmId=null;authMsg='';authErr=false;render();return;
+  }
+  if(act==='home'){activePage='home';activeAccountId=null;addAccountOpen=false;editingAccountId=null;deleteConfirmId=null;render();window.scrollTo(0,0);return}
+  if(act==='settings'){activePage='settings';activeAccountId=null;addAccountOpen=false;editingAccountId=null;deleteConfirmId=null;render();window.scrollTo(0,0);return}
   if(act==='delete-account'){
     var deleteId=b.dataset.accountId;
     var deleteAccount=accounts.find(function(account){return account.id===deleteId});
@@ -516,6 +535,8 @@ document.addEventListener('click',function(e){
       accounts=accounts.filter(function(account){return account.id!==deleteId});
       activeAccountId=null;
       activePage='home';
+      addAccountOpen=false;
+      editingAccountId=null;
       deleteConfirmId=null;
       authMsg='';authErr=false;
     });
@@ -551,11 +572,36 @@ document.addEventListener('click',function(e){
 
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'&&(addAccountOpen||deleteConfirmId!==null)){
-    addAccountOpen=false;addingAccountType='';deleteConfirmId=null;authMsg='';authErr=false;render();
+    addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;authMsg='';authErr=false;render();
   }
 });
 
 document.addEventListener('submit',function(e){
+  var editForm=e.target.closest('form[data-form="edit-account"]');
+  if(editForm){
+    e.preventDefault();
+    var editId=editForm.dataset.accountId;
+    var editData=new FormData(editForm);
+    guard(async function(){
+      authMsg='';authErr=false;
+      var name=String(editData.get('name')||'').trim();
+      if(!name||name.length>80){
+        authMsg='Entre un nom de compte de 1 à 80 caractères.';
+        authErr=true;
+        return;
+      }
+      var result=await sb.from('app_accounts').update({name:name}).eq('id',editId).eq('user_id',session.user.id)
+        .select('id,user_id,account_type,name,signed_balance,balance_direction,created_at').maybeSingle();
+      if(result.error) throw new Error(result.error.message);
+      if(!result.data) throw new Error('Le compte n’a pas été trouvé dans Supabase; son nom n’a pas été modifié.');
+      accounts=accounts.map(function(account){return account.id===editId?result.data:account});
+      addAccountOpen=false;
+      editingAccountId=null;
+      deleteConfirmId=null;
+      authMsg='';authErr=false;
+    });
+    return;
+  }
   var af=e.target.closest('form[data-form="account"]');
   if(af){
     e.preventDefault();
