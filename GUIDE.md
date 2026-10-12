@@ -1,6 +1,6 @@
 # Mettre « Mon app » en ligne (Supabase + GitHub Pages)
 
-Cette version contient la connexion, la création de compte, la récupération de mot de passe et un profil d’utilisateur enregistré dans Supabase. Au premier accès après l’inscription, l’utilisateur saisit son prénom, son nom et les soldes actuels de ses comptes de débit et de crédit.
+Cette version contient la connexion, la création de compte, la récupération de mot de passe, un profil et tous les comptes enregistrés dans Supabase. Un nouvel utilisateur commence avec un seul compte Débit. Le bouton « + » permet d’ajouter Débit, Crédit, Placement ou Autre. Débit accepte directement un montant positif ou négatif; Crédit inverse le signe du montant saisi, afin qu’un montant positif représente une dette et qu’un montant négatif soit un crédit en ta faveur. Pour Placement et Autre, l’utilisateur choisit si le montant est de l’argent de côté (positif) ou une dette (négatif). Chaque compte indique aussi son signe et peut être supprimé depuis sa page; l’ajout et la suppression sont enregistrés dans Supabase.
 
 L’application ne demande ni ne stocke de numéro de carte, de date d’expiration ou de code de sécurité. Les soldes et le nom sont des informations personnelles : exécute le script SQL ci-dessous pour activer la protection RLS, qui limite chaque utilisateur à son propre profil.
 
@@ -15,8 +15,8 @@ IMPORTANT : ne mets jamais la clé secrète (`service_role` ou `secret`) dans ce
 ## 2. Créer la table privée des profils
 
 1. Dans Supabase, ouvre **SQL Editor** et crée une nouvelle requête.
-2. Copie-colle le contenu de `supabase-schema.sql`, puis exécute-le.
-3. Le script crée `app_profiles`, active RLS et autorise chaque utilisateur authentifié à lire et modifier uniquement la ligne dont l’identifiant correspond à son compte.
+2. Copie-colle le contenu de `supabase-schema.sql`, puis exécute-le. Si tu avais déjà installé une version précédente, exécute le script à nouveau : il ajoute le signe, les règles de suppression et la fonction de création initiale, et migre les comptes Débit/Crédit déjà enregistrés.
+3. Le script crée `app_profiles` et `app_accounts`, active RLS et limite la lecture, l’ajout et la suppression des comptes à leur propriétaire authentifié. La fonction `create_initial_profile` crée le profil et son unique compte Débit dans une même transaction.
 
 Sans cette étape, l’application ne peut pas enregistrer les profils.
 
@@ -41,7 +41,7 @@ Sans cette étape, l’application ne peut pas enregistrer les profils.
 
 1. Ouvre l'adresse dans Safari sur ton iPhone.
 2. Crée un compte et confirme ton courriel si Supabase le demande.
-3. Au premier accès, remplis le formulaire de profil. Les profils existants vont directement à l’accueil.
+3. Au premier accès, remplis le formulaire de profil et le solde initial Débit. Les anciens comptes Débit/Crédit sont migrés par le script SQL; les nouveaux profils commencent avec Débit seulement.
 4. Pour l'avoir comme une app : **Partager**, puis **Sur l'écran d'accueil**.
 
 Pour empêcher de nouvelles inscriptions, désactive **Allow new users to sign up** dans Supabase (**Authentication > Sign In / Providers**, section Email). Cela empêchera aussi les nouveaux utilisateurs de créer un profil.
@@ -49,7 +49,7 @@ Pour empêcher de nouvelles inscriptions, désactive **Allow new users to sign u
 ## Dépannage
 
 - **« Configuration manquante »** : `config.js` n'a pas été modifié, ou les fichiers ne sont pas à la racine du dépôt.
-- **« Profil inaccessible »** : exécute `supabase-schema.sql` dans le SQL Editor de ton projet Supabase et vérifie que la connexion est active.
+- **« Profil inaccessible »** : exécute `supabase-schema.sql` dans le SQL Editor de ton projet Supabase et vérifie que la connexion est active. Après une mise à jour, recharge aussi l’app pour récupérer le nouveau script.
 - **Ancienne version qui s'affiche** : ferme l'app complètement et rouvre-la, ou recharge la page dans Safari.
 - **Le lien du courriel ouvre une mauvaise page** : revois l'étape 3.
 
