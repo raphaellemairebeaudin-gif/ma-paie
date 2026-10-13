@@ -1,5 +1,5 @@
 // Service worker minimal : garde l'app disponible et se met à jour dès qu'il y a du réseau.
-const CACHE = 'mon-app-v7';
+const CACHE = 'mon-app-v8';
 const ASSETS = ['./', './index.html', './config.js', './manifest.webmanifest',
                 './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 

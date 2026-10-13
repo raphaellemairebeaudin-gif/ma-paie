@@ -1,8 +1,25 @@
 # Mettre « Budget App » en ligne (Supabase + GitHub Pages)
 
-Cette version contient la connexion, la création de compte, la récupération de mot de passe, un profil et tous les comptes enregistrés dans Supabase. Un nouvel utilisateur commence avec un seul compte Débit. Le bouton « + » permet d’ajouter Débit, Crédit, Placement ou Autre. Plaid peut aussi connecter des institutions financières canadiennes et synchroniser les soldes des comptes chèques, épargne et crédit. Pour offrir ces types de comptes, la configuration Plaid demande l’accès au produit Transactions; Budget App ne récupère ni n’enregistre les transactions, mais Plaid peut y accéder et le produit peut être facturé en production. Les connexions bancaires peuvent être actualisées ou déconnectées depuis l’application. Depuis le crayon sur une carte, les comptes manuels peuvent être modifiés ou supprimés; les soldes bancaires synchronisés par Plaid sont remplacés lors de l’actualisation. Chaque compte possède aussi un historique de transactions saisies manuellement; enregistrer une dépense diminue le solde, et un revenu l’augmente.
+Cette version contient la connexion, la création de compte, la récupération de mot de passe, un profil et tous les comptes enregistrés dans Supabase. Un nouvel utilisateur commence avec un seul compte Débit. Le bouton « + » permet d’ajouter Débit, Crédit, Placement ou Autre. Les comptes sont gérés manuellement depuis l’application. Chaque compte possède aussi un historique de transactions saisies manuellement; enregistrer une dépense diminue le solde, et un revenu l’augmente.
 
 L’application ne demande ni ne stocke de numéro de carte, de date d’expiration ou de code de sécurité. Les soldes et le nom sont des informations personnelles : exécute le script SQL ci-dessous pour activer la protection RLS, qui limite chaque utilisateur à son propre profil.
+
+### Si tu as déjà connecté une banque avec Plaid
+
+Avant de remplacer l’ancienne version du site, ouvre-la et déconnecte chaque banque avec le crayon d’un compte bancaire. Cela révoque les connexions auprès de Plaid. Ensuite, déploie la nouvelle version de `supabase/functions/delete-account/index.ts` et supprime la fonction Edge `plaid` si tu n’en as plus besoin :
+
+```powershell
+npx -y supabase@latest functions deploy delete-account --project-ref TON-REF-PROJET
+npx -y supabase@latest functions delete plaid --project-ref TON-REF-PROJET
+```
+
+Les anciens secrets `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_TOKEN_ENCRYPTION_KEY` et `PLAID_ENV` ne sont pas supprimés automatiquement. Après avoir déconnecté les banques, tu peux les retirer avec :
+
+```powershell
+npx -y supabase@latest secrets unset PLAID_CLIENT_ID PLAID_SECRET PLAID_TOKEN_ENCRYPTION_KEY PLAID_ENV --project-ref TON-REF-PROJET
+```
+
+Les éventuelles tables et colonnes Plaid déjà créées dans Supabase restent en place et ne gênent pas l’application. Ne supprime pas de données ou d’objets SQL si tu n’es pas certain qu’aucune connexion bancaire n’y est encore enregistrée.
 
 ## 1. Supabase : récupérer deux informations
 
@@ -15,14 +32,14 @@ IMPORTANT : ne mets jamais la clé secrète (`service_role` ou `secret`) dans ce
 ## 2. Créer les tables privées
 
 1. Dans Supabase, ouvre **SQL Editor** et crée une nouvelle requête.
-2. Copie-colle le contenu de `supabase-schema.sql`, puis exécute-le. Si tu avais déjà installé une version précédente, exécute le script à nouveau : il ajoute les transactions, les règles de suppression et de modification des comptes, la table privée des connexions Plaid, ainsi que les fonctions de création initiale et d’enregistrement atomique des transactions, et migre les comptes Débit/Crédit déjà enregistrés.
-3. Le script crée `app_profiles`, `app_accounts`, `app_transactions` et `plaid_items`. Il active RLS et limite chaque utilisateur à ses propres données; les jetons Plaid ne sont accessibles qu’au serveur. La fonction `create_initial_profile` crée le profil et son unique compte Débit dans une même transaction. La fonction `create_account_transaction` enregistre chaque transaction et modifie le solde du compte atomiquement.
+2. Copie-colle le contenu de `supabase-schema.sql`, puis exécute-le. Si tu avais déjà installé une version précédente, exécute le script à nouveau : il ajoute les transactions, les règles de suppression et de modification des comptes, ainsi que les fonctions de création initiale et d’enregistrement atomique des transactions, et migre les comptes Débit/Crédit déjà enregistrés.
+3. Le script crée `app_profiles`, `app_accounts` et `app_transactions`. Il active RLS et limite chaque utilisateur à ses propres données. La fonction `create_initial_profile` crée le profil et son unique compte Débit dans une même transaction. La fonction `create_account_transaction` enregistre chaque transaction et modifie le solde du compte atomiquement.
 
 Sans cette étape, l’application ne peut pas enregistrer les profils.
 
 ## 3. Configurer la confirmation par courriel et déployer la suppression
 
-La page Information affiche les informations du profil. Avant toute suppression, l’application envoie un code à six chiffres à l’adresse courriel du compte. Le serveur vérifie ce code, révoque les connexions Plaid, puis supprime l’utilisateur et ses données; la clé `service_role` reste uniquement côté serveur.
+La page Information affiche les informations du profil. Avant toute suppression, l’application envoie un code à six chiffres à l’adresse courriel du compte. Le serveur vérifie ce code, puis supprime l’utilisateur et ses données; la clé `service_role` reste uniquement côté serveur.
 
 1. Dans Supabase, ouvre **Authentication > Email Templates > Magic Link**. Ce modèle est utilisé par Supabase pour envoyer le code demandé par l’application. Tu peux laisser le sujet `Magic Link` tel quel; modifie seulement le contenu du courriel pour afficher le code, par exemple :
    - **Body** :
@@ -42,42 +59,24 @@ La page Information affiche les informations du profil. Avant toute suppression,
 
 La clé `service_role` se trouve dans **Project Settings > API**. Ne la copie jamais dans `config.js`, dans le navigateur ou dans Git. La fonction lit `SUPABASE_SERVICE_ROLE_KEY` ou, si tu l’as enregistré sous ce nom, `SB_SERVICE_ROLE_KEY`. Elle utilise la session de la personne connectée, envoie le code à l’adresse courriel associée à cette session et ne supprime le compte qu’après validation du code.
 
-## 4. Connecter Plaid (banques canadiennes)
-
-L’application appelle Plaid uniquement pour créer la connexion, échanger le jeton et lire les soldes. Le produit Plaid **Transactions** demandé lors de Link peut donner à Plaid accès à l’historique des opérations et entraîner des frais en production; Budget App ne demande, n’importe ni ne conserve ces opérations. En mode **Sandbox**, seules des institutions et données de test sont disponibles. Les institutions canadiennes n’utilisent généralement pas OAuth avec Plaid actuellement; aucun URI de redirection OAuth n’est nécessaire pour cette configuration Canada.
-
-1. Crée un compte développeur sur [Plaid](https://dashboard.plaid.com/signup), crée une application, puis récupère son **Client ID** et son **Sandbox secret** dans le tableau de bord Plaid. Ne les envoie à personne et ne les ajoute jamais à `config.js`.
-2. Dans PowerShell, génère une clé de chiffrement aléatoire de 32 octets :
-   `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
-   Copie le résultat temporairement pour la commande suivante; ne l’ajoute à aucun fichier du site.
-3. Dans le dossier du projet, configure les secrets Supabase (remplace chaque valeur localement; ne partage pas la commande contenant les secrets) :
-   `npx -y supabase@latest secrets set PLAID_CLIENT_ID=TON-CLIENT-ID PLAID_SECRET=TON-SANDBOX-SECRET PLAID_TOKEN_ENCRYPTION_KEY=TA-CLE-BASE64 PLAID_ENV=sandbox --project-ref TON-REF-PROJET`
-   Garde la clé de chiffrement : perdre cette clé empêchera de lire les jetons Plaid déjà enregistrés.
-4. Exécute de nouveau `supabase-schema.sql` dans le SQL Editor. Le script ajoute les colonnes des comptes synchronisés et une table inaccessible au navigateur pour les connexions Plaid.
-5. Déploie la fonction Edge :
-   `npx -y supabase@latest functions deploy plaid --project-ref TON-REF-PROJET`
-6. Déploie les fichiers du site selon l’étape 5. L’application affichera **Connecter une banque avec Plaid**. Pour utiliser de vrais comptes canadiens, demande l’accès Production à Plaid, puis configure le secret `PLAID_SECRET` avec le secret Production et `PLAID_ENV=production`. L’accès Production et les institutions disponibles dépendent de l’approbation Plaid.
-
-La fonction Edge `plaid` échange le jeton public de courte durée côté serveur et chiffre le jeton d’accès avec `PLAID_TOKEN_ENCRYPTION_KEY`. Aucun jeton bancaire secret n’est envoyé au navigateur. Seuls les comptes en CAD sont affichés. Pour retirer une institution, ouvre un de ses comptes, utilise le crayon puis **Déconnecter cette banque**.
-
-## 5. GitHub : mettre les fichiers en ligne
+## 4. GitHub : mettre les fichiers en ligne
 
 1. Sur github.com, ouvre ton dépôt existant (ou crées-en un : **New repository**, **Public**).
 2. Si le dépôt contient l'ancienne version, supprime les anciens fichiers (surtout `index.html`), ou remplace-les.
 3. **Add file > Upload files** : glisse tous les fichiers du site à la racine, ainsi que `supabase/functions/delete-account/index.ts` en gardant ses sous-dossiers :
-   `index.html`, `config.js`, `supabase-schema.sql`, `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `supabase/functions/delete-account/index.ts`, `supabase/functions/plaid/index.ts`
+   `index.html`, `config.js`, `supabase-schema.sql`, `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `supabase/functions/delete-account/index.ts`
 4. Clique **Commit changes**.
 5. **Settings > Pages** : **Deploy from a branch**, branche **main**, dossier **/ (root)**, **Save**.
 6. Après 1 à 2 minutes, l'adresse du site s'affiche : `https://TON-NOM.github.io/NOM-DU-DEPOT/`
 
-## 6. Supabase : dire où est ton site
+## 5. Supabase : dire où est ton site
 
 1. **Authentication > URL Configuration**.
 2. **Site URL** : colle l'adresse de ton site GitHub (avec le `/` à la fin).
 3. **Redirect URLs** : ajoute la même adresse.
    Ça sert aux liens reçus par courriel (confirmation, mot de passe oublié).
 
-## 7. Essayer
+## 6. Essayer
 
 1. Ouvre l'adresse dans Safari sur ton iPhone.
 2. Crée un compte et confirme ton courriel si Supabase le demande.
@@ -93,12 +92,11 @@ Pour empêcher de nouvelles inscriptions, désactive **Allow new users to sign u
 - **Les transactions ne chargent pas ou ne s’enregistrent pas** : exécute de nouveau la version actuelle de `supabase-schema.sql` dans le SQL Editor Supabase; elle crée la table et la fonction nécessaires à l’historique.
 - **La modification d’un compte est refusée** : exécute de nouveau la version actuelle de `supabase-schema.sql` dans le SQL Editor Supabase; elle ajoute les permissions RLS nécessaires pour modifier leur nom et leur montant.
 - **« Error sending magic link email » ou « Supabase n’a pas pu envoyer le code »** : vérifie **Authentication > Emails > SMTP Settings**. Le champ **Host** doit contenir le serveur SMTP, pas l’adresse du site GitHub Pages. Pour Gmail, utilise `smtp.gmail.com`, le port `465`, l’adresse Gmail complète comme **Username**, et un mot de passe d’application Google comme **Password** (la validation en deux étapes doit être activée). Le **Sender email address** doit être cette même adresse Gmail. Garde le mot de passe uniquement dans Supabase; ne le mets pas dans `config.js`. Enregistre les changements puis réessaie après quelques minutes. Si tu utilises un autre fournisseur, demande-lui son nom d’hôte et ses identifiants SMTP.
-- **Plaid ne démarre pas ou les soldes ne se chargent pas** : vérifie les secrets `PLAID_CLIENT_ID`, `PLAID_SECRET` et `PLAID_TOKEN_ENCRYPTION_KEY` dans Supabase. La valeur du secret `PLAID_ENV` doit être uniquement `sandbox`, `development` ou `production` — sans guillemets ni autre commande. Pour réinitialiser le mode test depuis PowerShell, lance `npx -y supabase@latest secrets set PLAID_ENV=sandbox --project-ref TON-REF-PROJET`, puis redéploie avec `npx -y supabase@latest functions deploy plaid --project-ref TON-REF-PROJET`. Le Sandbox ne se connecte pas aux comptes bancaires réels.
 - **Le code de suppression n’arrive pas** : vérifie le modèle **Authentication > Email Templates > Magic Link**, notamment la présence de `{{ .Token }}`, puis les courriels indésirables et les limites d’envoi. Si le bouton reste sur « Envoi en cours... », la fonction Edge ne répond pas : l’application arrête maintenant l’attente après 30 secondes. Consulte les journaux de `delete-account` sous **Edge Functions > delete-account > Logs** et les journaux Auth dans **Logs Explorer** pour repérer l’échec d’envoi ou une requête bloquée. Vérifie aussi l’activité ou les rejets dans le tableau de bord de ton fournisseur SMTP. Après un délai d’attente, le courriel peut tout de même arriver; attends avant de demander un nouvel envoi.
 - **L’application affiche une erreur lors de l’envoi du code** : lis le détail maintenant affiché dans le dialogue. Il indique l’erreur renvoyée par Supabase Auth (par exemple une limite d’envoi ou un problème avec le modèle courriel).
 - **La suppression permanente du compte échoue** : déploie à nouveau `supabase/functions/delete-account/index.ts` et vérifie que le secret `SB_SERVICE_ROLE_KEY` ou `SUPABASE_SERVICE_ROLE_KEY` est défini dans les secrets des fonctions Edge.
 - **Ancienne version qui s'affiche** : ferme l'app complètement et rouvre-la, ou recharge la page dans Safari.
-- **Le lien du courriel ouvre une mauvaise page** : revois l'étape 4.
+- **Le lien du courriel ouvre une mauvaise page** : revois l'étape 5.
 
 ## Changer le nom du site
 

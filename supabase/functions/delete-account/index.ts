@@ -92,29 +92,6 @@ Deno.serve(async (request: Request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
-  const { data: plaidItems, error: plaidItemsError } = await adminClient.from("plaid_items")
-    .select("item_id")
-    .eq("user_id", user.id);
-  if (plaidItemsError) {
-    console.error("Could not load Plaid connections before account deletion:", plaidItemsError.message);
-    return jsonResponse({ error: "Supabase n’a pas pu vérifier les connexions bancaires avant la suppression. Réessaie plus tard." }, 500);
-  }
-  if (plaidItems && plaidItems.length > 0) {
-    const plaidResponse = await fetch(`${supabaseUrl.replace(/\/+$/, "")}/functions/v1/plaid`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${tokenMatch[1]}`,
-        apikey: anonKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ action: "disconnect-all" }),
-    });
-    const plaidResult = await plaidResponse.json() as { success?: boolean; error?: string };
-    if (!plaidResponse.ok || plaidResult.success !== true) {
-      const detail = typeof plaidResult.error === "string" ? plaidResult.error : "Déconnecte d’abord les banques Plaid, puis réessaie.";
-      return jsonResponse({ error: `Impossible de révoquer les connexions bancaires : ${detail}` }, 502);
-    }
-  }
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id);
   if (deleteError) {
     console.error("Supabase user deletion failed:", deleteError.message);
