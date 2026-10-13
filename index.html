@@ -242,6 +242,8 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .home-account-chip{position:absolute;top:14px;right:16px;width:30px;height:22px;border:1px solid rgba(255,255,255,.8);border-radius:6px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(218,229,217,.72));box-shadow:inset 0 0 0 1px rgba(30,60,65,.12)}
 .home-account-chip::before{content:"";position:absolute;inset:0 9px;border-left:1px solid rgba(30,60,65,.4);border-right:1px solid rgba(30,60,65,.4)}
 .home-account-chip::after{content:"";position:absolute;left:0;right:0;top:8px;height:6px;border-top:1px solid rgba(30,60,65,.4);border-bottom:1px solid rgba(30,60,65,.4)}
+.home-card-edit{position:absolute;top:9px;left:10px;z-index:2;width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:rgba(0,0,0,.22);color:#fff;cursor:pointer}
+.home-card-edit svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .home-account-balance{position:relative;z-index:1;font-size:24px;font-weight:800;letter-spacing:-.04em;white-space:nowrap;margin-bottom:2px}
 .home-account-footer{position:relative;z-index:1;display:flex;align-items:center;gap:7px;min-width:0;color:rgba(255,255,255,.76);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
 .home-account-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -250,6 +252,11 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .home-account-add{align-items:center;justify-content:center;background:#101010;border:1px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.75);font-size:54px;font-weight:300}
 .home-account-add::after{display:none}
 .home-account-add:hover{background:#171717;border-color:rgba(255,255,255,.65);color:#fff}
+.bank-actions{display:grid;gap:10px;width:min(82vw,680px);margin:16px auto 0}
+.bank-actions .obtn,.bank-actions .pbtn{width:100%;min-width:0;margin:0}
+.bank-actions .msg{color:rgba(255,255,255,.68);margin:2px 0 0}
+.bank-actions .msg.err{color:var(--over)}
+.bank-actions button:disabled{opacity:.6;cursor:default}
 .home-fill{flex:1;min-height:180px}
 
 .cfg{padding:16px}
@@ -260,6 +267,7 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 <script>
 (function(){
 'use strict';
@@ -280,7 +288,7 @@ function frErr(m){
   return m||'Une erreur est survenue.';
 }
 
-var sb=null, session=null, mode='login', view='welcome', activePage='home', activeAccountId=null, profile=null, accounts=[], transactions=[], transactionsStatus='idle', transactionsError='', transactionsRequestId=0, transactionFormOpen=false, addAccountOpen=false, addingAccountType='', editingAccountId=null, deleteConfirmId=null, accountDeleteConfirmOpen=false, accountDeleteCodeSent=false, profileStatus='loading', profileError='', profileRequestId=0, authMsg='', authErr=false, busy=false, accountScrollTargetKey=null;
+var sb=null, session=null, mode='login', view='welcome', activePage='home', activeAccountId=null, profile=null, accounts=[], transactions=[], transactionsStatus='idle', transactionsError='', transactionsRequestId=0, transactionFormOpen=false, addAccountOpen=false, addingAccountType='', editingAccountId=null, deleteConfirmId=null, accountDeleteConfirmOpen=false, accountDeleteCodeSent=false, accountDeleteSending=false, plaidLinkActive=false, profileStatus='loading', profileError='', profileRequestId=0, authMsg='', authErr=false, busy=false, accountScrollTargetKey=null;
 var accountDrag=null;
 function configured(){
   return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
@@ -382,7 +390,7 @@ function viewProfileStatus(){
 function loadProfile(userId,requestId){
   return Promise.all([
     sb.from('app_profiles').select('id,first_name,last_name,debit_balance,credit_balance').eq('id',userId).maybeSingle(),
-    sb.from('app_accounts').select('id,user_id,account_type,name,signed_balance,balance_direction,created_at').eq('user_id',userId).order('created_at',{ascending:true})
+    sb.from('app_accounts').select('id,user_id,account_type,name,signed_balance,balance_direction,created_at,plaid_item_id,plaid_account_id').eq('user_id',userId).order('created_at',{ascending:true})
   ]).then(function(results){
       if(requestId!==profileRequestId||!session||session.user.id!==userId) return;
       var profileResult=results[0], accountsResult=results[1];
@@ -471,6 +479,7 @@ function viewHome(){
       account.account_type==='credit'||account.balance_direction==='negative'?'account-card-blue':'account-card-green';
     return '<article class="home-account-card '+colorClass+'" data-scroll-key="account-'+esc(account.id)+'">'+
       '<span class="home-account-chip" aria-hidden="true"></span>'+
+      (account.plaid_item_id?'<button type="button" class="home-card-edit" data-act="edit-account" data-account-id="'+esc(account.id)+'" aria-label="Gérer la connexion bancaire '+esc(account.name)+'">'+I_EDIT+'</button>':'')+
       '<span class="home-account-balance">'+money(account.signed_balance)+'</span>'+
       '<span class="home-account-footer"><span class="home-account-name">'+esc(account.name)+'</span><span class="home-account-separator">-</span><span class="home-account-type">'+(typeLabels[account.account_type]||'Compte')+'</span></span>'+
     '</article>';
@@ -480,6 +489,12 @@ function viewHome(){
     '<main class="minimal-page">'+
       '<h1 class="home-greeting">Bonjour'+(firstName?' '+esc(firstName):'')+',</h1>'+
       '<section class="home-account-scroller" aria-label="Comptes" tabindex="0">'+accountCards+'</section>'+
+      '<div class="bank-actions">'+
+        (authMsg?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
+        '<button type="button" class="obtn" data-act="connect-plaid"'+((busy||plaidLinkActive)?' disabled':'')+'>'+(busy||plaidLinkActive?'Connexion en cours...':'Connecter une banque avec Plaid')+'</button>'+
+        (accounts.some(function(account){return !!account.plaid_item_id})?'<button type="button" class="obtn" data-act="refresh-plaid-balances"'+(busy?' disabled':'')+'>'+(busy?'Actualisation en cours...':'Actualiser les soldes bancaires')+'</button>':'')+
+        '<p class="msg">Pour obtenir les soldes, Plaid demande aussi l’accès aux transactions. Budget App ne les importe ni ne les enregistre.</p>'+
+      '</div>'+
       '<div class="home-fill"></div>'+
     '</main>'+
     navMarkup()+(addAccountOpen?viewAddAccountModal():'')+
@@ -536,7 +551,9 @@ function viewAddAccountModal(){
         '<button type="button" class="account-type-option" data-act="select-account-type" data-type="credit">Crédit</button>'+
         '<button type="button" class="account-type-option" data-act="select-account-type" data-type="investment">Placement</button>'+
         '<button type="button" class="account-type-option" data-act="select-account-type" data-type="other">Autre</button>'+
-      '</div>';
+      '</div>'+
+      '<p class="msg">Pour inclure les soldes de cartes de crédit, Plaid demande aussi l’accès aux transactions. Budget App ne les importe ni ne les enregistre.</p>'+
+      '<button type="button" class="obtn" data-act="connect-plaid"'+((busy||plaidLinkActive)?' disabled':'')+'>'+(busy||plaidLinkActive?'Connexion en cours...':'Connecter une banque avec Plaid')+'</button>';
   }
   return '<div class="account-overlay" data-act="close-account-modal">'+
     '<section class="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-dialog-title">'+
@@ -578,7 +595,7 @@ function viewSettings(){
 
 function viewAccountDeleteConfirmation(){
   return '<div class="account-overlay" data-act="close-account-deletion">'+
-    '<section class="account-dialog account-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-user-title">'+
+    '<section class="account-dialog account-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-user-title"'+(accountDeleteSending?' aria-busy="true"':'')+'>'+
       '<button type="button" class="iconbtn account-close" data-act="close-account-deletion" aria-label="Fermer">'+I_X+'</button>'+
       '<h2 id="delete-user-title">Supprimer définitivement le compte ?</h2>'+
       '<p class="account-dialog-intro">Cette action supprimera ton utilisateur, ton profil, tous tes comptes et toutes tes transactions. Elle est irréversible.</p>'+
@@ -588,11 +605,11 @@ function viewAccountDeleteConfirmation(){
         '<form class="delete-confirm" data-form="account-deletion-code">'+
           '<div class="fgroup"><label class="flabel" for="account-deletion-code">Code de confirmation</label><input class="fin" id="account-deletion-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></div>'+
           '<button type="submit" class="pbtn delete-action">Confirmer et supprimer le compte</button>'+
-          '<button type="button" class="obtn" data-act="send-account-deletion-code">Renvoyer le code</button>'+
+          '<button type="button" class="obtn" data-act="send-account-deletion-code"'+(accountDeleteSending?' disabled':'')+'>'+(accountDeleteSending?'Envoi en cours...':'Renvoyer le code')+'</button>'+
           '<button type="button" class="obtn" data-act="close-account-deletion">Annuler</button>'+
         '</form>':
         '<div class="delete-confirm">'+
-          '<button type="button" class="pbtn delete-action" data-act="send-account-deletion-code">Envoyer le code de confirmation</button>'+
+          '<button type="button" class="pbtn delete-action" data-act="send-account-deletion-code"'+(accountDeleteSending?' disabled':'')+'>'+(accountDeleteSending?'Envoi en cours...':'Envoyer le code de confirmation')+'</button>'+
           '<button type="button" class="obtn" data-act="close-account-deletion">Annuler</button>'+
         '</div>')+
     '</section>'+
@@ -645,15 +662,19 @@ function viewCard(){
 function viewEditAccountModal(){
   var account=accounts.find(function(item){return item.id===editingAccountId});
   if(!account) return '';
-  var title=deleteConfirmId===account.id?'Supprimer ce compte ?':'Modifier le compte';
+  var title=deleteConfirmId===account.id?(account.plaid_item_id?'Déconnecter cette banque ?':'Supprimer ce compte ?'):'Modifier le compte';
   var requiresDirection=account.account_type==='investment'||account.account_type==='other';
   var amountValue=account.account_type==='credit'?-Number(account.signed_balance):requiresDirection?Math.abs(Number(account.signed_balance)):Number(account.signed_balance);
   var modalBody=deleteConfirmId===account.id?
-    '<p class="account-dialog-intro">« '+esc(account.name)+' » et son solde seront supprimés définitivement de Supabase.</p>'+
+    '<p class="account-dialog-intro">'+(account.plaid_item_id?'La banque « '+esc(account.name.split(' · ')[0])+' » sera déconnectée et tous ses comptes importés seront retirés.':'« '+esc(account.name)+' » et son solde seront supprimés définitivement de Supabase.')+'</p>'+
     '<div class="delete-confirm">'+
-      '<button type="button" class="pbtn delete-action" data-act="confirm-delete-account" data-account-id="'+esc(account.id)+'">Supprimer le compte</button>'+
+      '<button type="button" class="pbtn delete-action" data-act="confirm-delete-account" data-account-id="'+esc(account.id)+'">'+(account.plaid_item_id?'Déconnecter la banque':'Supprimer le compte')+'</button>'+
       '<button type="button" class="obtn" data-act="cancel-delete-account">Annuler</button>'+
     '</div>':
+    account.plaid_item_id?
+    '<p class="account-dialog-intro">Ce solde est synchronisé avec Plaid et ne peut pas être modifié manuellement. Les transactions ne sont pas importées dans Budget App.</p>'+
+    (authMsg&&authErr?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
+    '<div class="edit-account-actions"><button type="button" class="obtn delete-action" data-act="delete-account" data-account-id="'+esc(account.id)+'">Déconnecter cette banque</button></div>':
     '<p class="account-dialog-intro">Modifie le nom ou le montant, ou supprime ce compte.</p>'+
     (authMsg&&authErr?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
     '<form data-form="edit-account" data-account-id="'+esc(account.id)+'">'+
@@ -721,14 +742,30 @@ function render(){
 }
 
 /* ---------- Actions ---------- */
-function guard(fn){
+function guard(fn,showBusy){
   if(busy) return Promise.resolve();
   busy=true;
+  if(showBusy) render();
   return fn().catch(function(e){authMsg=frErr(e&&e.message);authErr=true}).then(function(){busy=false;render()});
 }
 
 async function callAccountDeletion(payload){
-  var result=await sb.functions.invoke('delete-account',{body:payload});
+  var controller=new AbortController();
+  var timeoutId=window.setTimeout(function(){controller.abort()},30000);
+  var result;
+  try{
+    result=await sb.functions.invoke('delete-account',{body:payload,signal:controller.signal});
+  }catch(e){
+    if(controller.signal.aborted){
+      throw new Error('Supabase ne répond pas après 30 secondes. Vérifie les journaux de la fonction delete-account et les journaux Auth avant de réessayer; le courriel peut arriver avec retard.');
+    }
+    throw e;
+  }finally{
+    window.clearTimeout(timeoutId);
+  }
+  if(controller.signal.aborted){
+    throw new Error('Supabase ne répond pas après 30 secondes. Vérifie les journaux de la fonction delete-account et les journaux Auth avant de réessayer; le courriel peut arriver avec retard.');
+  }
   if(result.error){
     var message=result.error.message||'La demande de suppression a échoué.';
     var response=result.error.context;
@@ -743,12 +780,80 @@ async function callAccountDeletion(payload){
   }
 }
 
+async function invokePlaid(payload){
+  var result=await sb.functions.invoke('plaid',{body:payload});
+  if(result.error){
+    var message=result.error.message||'La demande Plaid a échoué.';
+    var response=result.error.context;
+    if(response&&typeof response.json==='function'){
+      var responseBody=await response.json();
+      if(responseBody&&typeof responseBody.error==='string') message=responseBody.error;
+    }
+    throw new Error(message);
+  }
+  if(!result.data) throw new Error('Le serveur Plaid n’a pas renvoyé de réponse.');
+  return result.data;
+}
+
+function mergePlaidAccounts(updatedAccounts){
+  var linked=accounts.filter(function(account){return !!account.plaid_item_id});
+  (updatedAccounts||[]).forEach(function(updated){
+    var index=linked.findIndex(function(account){return account.id===updated.id});
+    if(index===-1) linked.push(updated);
+    else linked[index]=updated;
+  });
+  accounts=accounts.filter(function(account){return !account.plaid_item_id}).concat(linked);
+}
+
+async function openPlaidLink(){
+  if(!window.Plaid) throw new Error('Le formulaire Plaid n’a pas pu se charger. Vérifie ta connexion Internet et recharge la page.');
+  var result=await invokePlaid({action:'create-link-token'});
+  if(typeof result.link_token!=='string'||!result.link_token) throw new Error('Plaid n’a pas créé le jeton de connexion.');
+  var handler=window.Plaid.create({
+    token:result.link_token,
+    onSuccess:function(publicToken,metadata){
+      plaidLinkActive=false;
+      guard(async function(){
+        var institutionName=metadata&&metadata.institution&&metadata.institution.name||'Institution financière';
+        var connected=await invokePlaid({
+          action:'exchange-public-token',
+          public_token:publicToken,
+          institution_name:institutionName
+        });
+        mergePlaidAccounts(connected.accounts);
+        addAccountOpen=false;
+        addingAccountType='';
+        authMsg='';
+        authErr=false;
+      },true);
+    },
+    onExit:function(error){
+      var wasActive=plaidLinkActive;
+      plaidLinkActive=false;
+      if(error){
+        guard(async function(){
+          throw new Error(error.display_message||error.error_message||'La connexion bancaire a été interrompue.');
+        });
+      }else if(wasActive) render();
+    }
+  });
+  try{
+    handler.open();
+    plaidLinkActive=true;
+  }catch(error){
+    plaidLinkActive=false;
+    throw error;
+  }
+}
+
 function resetSignedOutState(){
   session=null;mode='login';view='welcome';activePage='home';activeAccountId=null;
   profile=null;accounts=[];transactions=[];transactionsStatus='idle';transactionsError='';transactionsRequestId++;transactionFormOpen=false;
   addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;
   accountDeleteConfirmOpen=false;
   accountDeleteCodeSent=false;
+  accountDeleteSending=false;
+  plaidLinkActive=false;
   profileStatus='loading';profileError='';profileRequestId++;
   authMsg='';authErr=false;
 }
@@ -803,16 +908,38 @@ document.addEventListener('click',function(e){
   var act=b.dataset.act;
   if(act==='confirm-account-deletion'){accountDeleteConfirmOpen=true;accountDeleteCodeSent=false;authMsg='';authErr=false;render();return}
   if(act==='close-account-deletion'){
+    if(accountDeleteSending) return;
     if(b.classList.contains('account-overlay')&&e.target!==b) return;
-    accountDeleteConfirmOpen=false;accountDeleteCodeSent=false;authMsg='';authErr=false;render();return;
+    accountDeleteConfirmOpen=false;accountDeleteCodeSent=false;accountDeleteSending=false;authMsg='';authErr=false;render();return;
   }
   if(act==='send-account-deletion-code'){
-    if(!session||!session.user||!accountDeleteConfirmOpen) return;
+    if(!session||!session.user||!accountDeleteConfirmOpen||busy) return;
+    authMsg='';authErr=false;
+    accountDeleteSending=true;
+    render();
+    guard(async function(){
+      try{
+        await callAccountDeletion({action:'send-code'});
+        accountDeleteCodeSent=true;
+      }finally{
+        accountDeleteSending=false;
+      }
+    });
+    return;
+  }
+  if(act==='connect-plaid'){
+    if(busy) return;
+    authMsg='';authErr=false;
+    guard(openPlaidLink,true);
+    return;
+  }
+  if(act==='refresh-plaid-balances'){
+    if(busy) return;
     authMsg='';authErr=false;
     guard(async function(){
-      await callAccountDeletion({action:'send-code'});
-      accountDeleteCodeSent=true;
-    });
+      var result=await invokePlaid({action:'refresh-balances'});
+      mergePlaidAccounts(result.accounts);
+    },true);
     return;
   }
   if(act==='close-account-modal'){
@@ -853,6 +980,16 @@ document.addEventListener('click',function(e){
     if(!deleteAccount||deleteConfirmId!==deleteId) return;
     deleteConfirmId=null;
     guard(async function(){
+      if(deleteAccount.plaid_item_id){
+        await invokePlaid({action:'disconnect',item_id:deleteAccount.plaid_item_id});
+        accounts=accounts.filter(function(account){return account.plaid_item_id!==deleteAccount.plaid_item_id});
+        activeAccountId=null;
+        activePage='home';
+        addAccountOpen=false;
+        editingAccountId=null;
+        authMsg='';authErr=false;
+        return;
+      }
       var result=await sb.from('app_accounts').delete().eq('id',deleteId).eq('user_id',session.user.id).select('id').maybeSingle();
       if(result.error) throw new Error(result.error.message);
       if(!result.data) throw new Error('Le compte n’a pas été trouvé dans Supabase; il n’a pas été supprimé.');
@@ -896,6 +1033,7 @@ document.addEventListener('click',function(e){
 
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'&&(addAccountOpen||deleteConfirmId!==null||accountDeleteConfirmOpen||transactionFormOpen)){
+    if(accountDeleteSending) return;
     addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;accountDeleteConfirmOpen=false;accountDeleteCodeSent=false;transactionFormOpen=false;authMsg='';authErr=false;render();
   }
 });

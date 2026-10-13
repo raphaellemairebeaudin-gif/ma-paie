@@ -40,6 +40,26 @@ create table if not exists public.app_accounts (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.plaid_items (
+  item_id text primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  institution_name text not null,
+  access_token_ciphertext text not null,
+  access_token_nonce text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.plaid_items enable row level security;
+revoke all on public.plaid_items from anon, authenticated;
+grant all on public.plaid_items to service_role;
+
+alter table public.app_accounts
+  add column if not exists plaid_item_id text,
+  add column if not exists plaid_account_id text;
+
+create unique index if not exists app_accounts_plaid_account_id_key
+  on public.app_accounts (plaid_account_id);
+
 alter table public.app_accounts
   add column if not exists balance_direction text default 'positive';
 
