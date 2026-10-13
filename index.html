@@ -102,7 +102,7 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .profile-wait{padding:28px 16px;color:var(--muted);text-align:center}
 
 /* Page principale */
-.home{min-height:100vh;min-height:100dvh;padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
+.home{min-height:100vh;min-height:100dvh;padding-bottom:0;background:#000}
 .home>.hdr{position:sticky;top:0;z-index:2}
 .home-grid{background:var(--bg);min-height:calc(100vh - 57px);padding:24px 16px 28px}
 .home-accounts-panel{width:fit-content;max-width:100%;margin:0 auto;padding:16px 12px 18px;border-radius:18px;background:var(--panel)}
@@ -137,6 +137,22 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .card-detail .home-tile{padding-right:56px}
 .card-detail .home-card-contactless{margin-right:42px}
 .card-edit-button{position:absolute;top:10px;right:10px;z-index:1;width:40px;height:40px;min-width:40px;border-radius:50%;background:var(--card);box-shadow:var(--shadow)}
+.card-transactions{max-width:440px;margin:22px auto 0;padding:18px;background:var(--card);border-radius:16px;box-shadow:var(--shadow)}
+.transactions-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.transactions-heading h2{font-size:20px}
+.transaction-add{display:flex;align-items:center;gap:6px;padding:8px 12px;border:0;border-radius:999px;background:var(--brand);color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.transaction-add span{font-size:20px;line-height:1}
+.transaction-form{padding:16px 0 6px;border-top:1px solid var(--line)}
+.transaction-list{display:grid;gap:0}
+.transaction-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.transaction-description{display:block;font-weight:600;overflow-wrap:anywhere}
+.transaction-meta{display:block;margin-top:3px;color:var(--muted);font-size:13px}
+.transaction-amount{font-weight:700;white-space:nowrap}
+.transaction-amount.expense{color:var(--over)}
+.transaction-amount.income{color:var(--link)}
+.transaction-empty,.transaction-status{color:var(--muted);font-size:14px;padding:10px 0}
+.transaction-form .account-direction{margin-bottom:16px}
+.transaction-form .pbtn,.transaction-form .obtn{width:100%;min-width:0;margin-top:10px}
 .settings-page{background:var(--bg);min-height:calc(100vh - 57px);padding:24px 16px 28px}
 .settings-card{max-width:560px;margin:0 auto;background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
 .settings-card h1{font-size:22px;margin:0 0 20px}
@@ -145,6 +161,26 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .settings-label{display:block;color:var(--muted);font-size:14px;margin-bottom:4px}
 .settings-value{overflow-wrap:anywhere;font-weight:600}
 .settings-card .obtn{width:100%;min-width:0}
+.account-info-page{width:min(100%,620px);margin:0 auto;padding:34px 18px calc(108px + env(safe-area-inset-bottom,0px));color:#fff}
+.account-info-page h1{font-size:25px;font-weight:800;letter-spacing:-.04em;margin-bottom:20px}
+.account-info-card{padding:20px;background:#111;border:1px solid rgba(255,255,255,.12);border-radius:18px}
+.account-info-row{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.12)}
+.account-info-row:last-child{border-bottom:0}
+.account-info-label{display:block;color:rgba(255,255,255,.55);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.account-info-value{overflow-wrap:anywhere;font-size:15px;font-weight:600}
+.account-info-section-title{font-size:16px;font-weight:700;margin:24px 0 10px}
+.account-info-list{display:grid;gap:10px}
+.account-info-item{padding:14px;background:#111;border:1px solid rgba(255,255,255,.12);border-radius:14px}
+.account-info-item-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700}
+.account-info-item-heading span:first-child{overflow-wrap:anywhere}
+.account-info-item-type,.account-info-item-date{color:rgba(255,255,255,.56);font-size:12px}
+.account-info-item-balance{margin-top:8px;font-size:18px;font-weight:800}
+.account-info-actions{display:grid;gap:10px;margin-top:24px}
+.account-info-actions .obtn,.account-info-actions .pbtn{width:100%;min-width:0;margin:0}
+.account-info-actions .delete-action{background:#261313;color:#ff8f8f;border:1px solid rgba(255,107,94,.5)}
+.account-delete-dialog .delete-confirm{margin-top:20px}
+.account-delete-dialog .delete-action{width:100%;min-width:0;margin:0}
+.account-delete-dialog .obtn{width:100%;min-width:0;margin:0}
 .account-overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;background:rgba(20,28,24,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .account-dialog{position:relative;width:min(100%,440px);max-height:calc(100dvh - 40px);overflow:auto;background:var(--card);color:var(--ink);border-radius:18px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,.26)}
 .account-dialog h2{font-size:22px;margin:0 44px 8px 0}
@@ -166,19 +202,55 @@ html.lock body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:10
 .edit-account-actions{display:grid;gap:10px}
 .edit-account-actions .delete-action{margin-top:8px;background:var(--card);color:var(--over);border:1px solid var(--over)}
 .tabbar{
-  position:fixed;left:50%;right:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
-  z-index:3;display:flex;align-items:center;gap:6px;width:max-content;max-width:calc(100% - 32px);
-  padding:7px;background:var(--bar);color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:999px;
-  box-shadow:0 6px 22px rgba(0,0,0,.24);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)
+  position:fixed;left:0;right:0;bottom:0;transform:none;
+  z-index:3;display:flex;align-items:stretch;gap:0;width:100%;max-width:none;
+  padding:0;background:#000;color:#fff;border:0;border-radius:0;
+  box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none
 }
 .tabbar button{
-  flex:0 0 auto;min-width:112px;background:transparent;border:0;border-radius:999px;color:rgba(255,255,255,.78);font:inherit;font-size:13px;font-weight:600;
-  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:10px 16px;cursor:pointer;
+  flex:1 1 0;min-width:0;background:transparent;border:0;border-radius:0;color:rgba(255,255,255,.42);font:inherit;font-size:13px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));cursor:pointer;
+  transition:color 220ms ease;
 }
-.tabbar button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tabbar button[aria-current="page"]{background:#fff;color:var(--link);font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.16)}
+.tabbar button svg{width:34px;height:34px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transform-origin:center;will-change:transform}
+.tabbar button[aria-current="page"]{background:transparent;color:#fff;font-weight:700;box-shadow:none}
+.tabbar button[aria-current="page"] svg{fill:currentColor;stroke:none;animation:nav-icon-select 420ms cubic-bezier(.22,1,.36,1) both}
 .tabbar button:disabled{opacity:.78;cursor:default}
 .tabbar button:focus-visible{outline-color:#fff}
+@keyframes nav-icon-select{
+  0%{transform:scale(.76);opacity:.45;filter:drop-shadow(0 0 0 rgba(255,255,255,0))}
+  58%{transform:scale(1.14);opacity:1;filter:drop-shadow(0 0 9px rgba(255,255,255,.38))}
+  78%{transform:scale(.97);filter:drop-shadow(0 0 4px rgba(255,255,255,.18))}
+  100%{transform:scale(1);opacity:1;filter:drop-shadow(0 0 0 rgba(255,255,255,0))}
+}
+@media (prefers-reduced-motion:reduce){
+  .tabbar button{transition:none}
+  .tabbar button[aria-current="page"] svg{animation:none}
+}
+
+.minimal-page{display:flex;flex-direction:column;min-height:calc(100dvh - 72px - env(safe-area-inset-bottom,0px));padding:0 0 20px;background:#000}
+.home-greeting{padding:44px 9vw 0;color:#fff;font-size:clamp(20px,4.5vw,26px);font-weight:800;letter-spacing:-.04em}
+.home-account-scroller{--home-account-card-width:min(78vw,680px);display:flex;gap:24px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-behavior:smooth;touch-action:pan-x;margin-top:36px;padding:0 calc((100vw - var(--home-account-card-width))/2) 8px;scrollbar-width:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.home-account-scroller.is-dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}
+.home-account-scroller.is-restoring{scroll-snap-type:none;scroll-behavior:auto}
+.home-account-scroller::-webkit-scrollbar{display:none}
+.home-account-card{position:relative;flex:0 0 var(--home-account-card-width);aspect-ratio:1.2/1;max-height:clamp(140px,18dvh,175px);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;padding:14px 16px;border:1px solid rgba(255,255,255,.16);border-radius:20px;color:#fff;text-align:left;font:inherit;scroll-snap-align:center}
+.home-account-scroller.is-dragging .home-account-card{pointer-events:none}
+.home-account-card::after{content:"";position:absolute;width:112px;height:112px;right:-40px;bottom:-58px;border:1px solid rgba(255,255,255,.2);border-radius:50%;box-shadow:0 0 0 12px rgba(255,255,255,.05),0 0 0 26px rgba(255,255,255,.035);pointer-events:none}
+.home-account-card.account-card-green{background:linear-gradient(135deg,#00A86B,#006B45)}
+.home-account-card.account-card-blue{background:linear-gradient(135deg,#2488E8,#123B78)}
+.home-account-chip{position:absolute;top:14px;right:16px;width:30px;height:22px;border:1px solid rgba(255,255,255,.8);border-radius:6px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(218,229,217,.72));box-shadow:inset 0 0 0 1px rgba(30,60,65,.12)}
+.home-account-chip::before{content:"";position:absolute;inset:0 9px;border-left:1px solid rgba(30,60,65,.4);border-right:1px solid rgba(30,60,65,.4)}
+.home-account-chip::after{content:"";position:absolute;left:0;right:0;top:8px;height:6px;border-top:1px solid rgba(30,60,65,.4);border-bottom:1px solid rgba(30,60,65,.4)}
+.home-account-balance{position:relative;z-index:1;font-size:24px;font-weight:800;letter-spacing:-.04em;white-space:nowrap;margin-bottom:2px}
+.home-account-footer{position:relative;z-index:1;display:flex;align-items:center;gap:7px;min-width:0;color:rgba(255,255,255,.76);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.home-account-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-separator{flex:0 0 auto}
+.home-account-type{flex:0 0 auto}
+.home-account-add{align-items:center;justify-content:center;background:#101010;border:1px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.75);font-size:54px;font-weight:300}
+.home-account-add::after{display:none}
+.home-account-add:hover{background:#171717;border-color:rgba(255,255,255,.65);color:#fff}
+.home-fill{flex:1;min-height:180px}
 
 .cfg{padding:16px}
 </style>
@@ -208,7 +280,8 @@ function frErr(m){
   return m||'Une erreur est survenue.';
 }
 
-var sb=null, session=null, mode='login', view='welcome', activePage='home', activeAccountId=null, profile=null, accounts=[], addAccountOpen=false, addingAccountType='', editingAccountId=null, deleteConfirmId=null, profileStatus='loading', profileError='', profileRequestId=0, authMsg='', authErr=false, busy=false;
+var sb=null, session=null, mode='login', view='welcome', activePage='home', activeAccountId=null, profile=null, accounts=[], transactions=[], transactionsStatus='idle', transactionsError='', transactionsRequestId=0, transactionFormOpen=false, addAccountOpen=false, addingAccountType='', editingAccountId=null, deleteConfirmId=null, accountDeleteConfirmOpen=false, accountDeleteCodeSent=false, profileStatus='loading', profileError='', profileRequestId=0, authMsg='', authErr=false, busy=false, accountScrollTargetKey=null;
+var accountDrag=null;
 function configured(){
   return !!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY&&!/TON-PROJET/.test(cfg.SUPABASE_URL)&&window.supabase);
 }
@@ -219,6 +292,8 @@ var I_X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 
 var I_EDIT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
 var I_EYE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 var I_HOME='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2L12 4l8.5 7.2V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>';
+var I_HOME_SOLID='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2L12 4l8.5 7.2V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>';
+var I_PERSON_SOLID='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="4"/><path d="M4 21c.3-4.4 3.5-7 8-7s7.7 2.6 8 7z"/></svg>';
 var I_ACCOUNTS='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="16" height="12" rx="2"/><path d="M3 9h16"/><path d="M7 14h3"/><path d="M7 19h14a1 1 0 0 0 1-1V8"/></svg>';
 var I_OUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10"/><path d="M9 12h11M16 8l4 4-4 4"/></svg>';
 var I_SETTINGS='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.8z" transform="translate(-1 -1) scale(1.08)"/></svg>';
@@ -337,6 +412,10 @@ function loadProfile(userId,requestId){
 function beginProfileLoad(userId){
   profile=null;
   accounts=[];
+  transactions=[];
+  transactionsStatus='idle';
+  transactionsError='';
+  transactionFormOpen=false;
   profileStatus='loading';
   profileError='';
   var requestId=++profileRequestId;
@@ -344,17 +423,64 @@ function beginProfileLoad(userId){
   window.setTimeout(function(){loadProfile(userId,requestId)},0);
 }
 
+function localDateValue(){
+  var today=new Date();
+  return today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+}
+
+function loadAccountTransactions(accountId){
+  var requestId=++transactionsRequestId;
+  transactions=[];
+  transactionsStatus='loading';
+  transactionsError='';
+  render();
+  return sb.from('app_transactions')
+    .select('id,account_id,transaction_type,description,amount,occurred_at,created_at')
+    .eq('user_id',session.user.id)
+    .eq('account_id',accountId)
+    .order('occurred_at',{ascending:false})
+    .order('created_at',{ascending:false})
+    .then(function(result){
+      if(requestId!==transactionsRequestId||activeAccountId!==accountId||!session) return;
+      if(result.error){
+        transactionsStatus='error';
+        transactionsError='Impossible de charger les transactions. Vérifie que la dernière version de supabase-schema.sql a été exécutée dans Supabase.';
+      }else{
+        transactions=result.data||[];
+        transactionsStatus='ready';
+        transactionsError='';
+      }
+      render();
+    }).catch(function(error){
+      if(requestId!==transactionsRequestId||activeAccountId!==accountId) return;
+      transactionsStatus='error';
+      transactionsError='Impossible de charger les transactions : '+(error&&error.message?error.message:'erreur réseau');
+      render();
+    });
+}
+
 function money(value){
   return new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD'}).format(Number(value)||0);
 }
 
 function viewHome(){
-  var total=accounts.reduce(function(sum,account){return sum+(Number(account.signed_balance)||0)},0);
+  var typeLabels={debit:'Débit',credit:'Crédit',savings:'Placement',investment:'Placement',other:'Autre'};
+  var firstName=profile&&String(profile.first_name||'').trim();
+  var accountCards=accounts.map(function(account){
+    var colorClass=account.account_type==='debit'?'account-card-green':
+      account.account_type==='credit'||account.balance_direction==='negative'?'account-card-blue':'account-card-green';
+    return '<article class="home-account-card '+colorClass+'" data-scroll-key="account-'+esc(account.id)+'">'+
+      '<span class="home-account-chip" aria-hidden="true"></span>'+
+      '<span class="home-account-balance">'+money(account.signed_balance)+'</span>'+
+      '<span class="home-account-footer"><span class="home-account-name">'+esc(account.name)+'</span><span class="home-account-separator">-</span><span class="home-account-type">'+(typeLabels[account.account_type]||'Compte')+'</span></span>'+
+    '</article>';
+  }).join('')+
+  '<button type="button" class="home-account-card home-account-add" data-scroll-key="add" data-act="open-account-modal" aria-label="Ajouter un compte">+</button>';
   return '<div class="home">'+
-    hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>')+
-    '<main class="home-grid" aria-label="Informations des comptes"><section class="home-accounts-panel"><h1 class="home-section-title"><span>Vos comptes</span><span class="home-total" aria-label="Total de tous les soldes enregistrés">Total : '+money(total)+'</span></h1>'+
-      '<div class="home-cards">'+accounts.map(function(account){return extraAccountMarkup(account,true)}).join('')+
-        '<button type="button" class="home-add-tile" data-act="open-account-modal" aria-label="Ajouter un compte">+</button></div></section>'+
+    '<main class="minimal-page">'+
+      '<h1 class="home-greeting">Bonjour'+(firstName?' '+esc(firstName):'')+',</h1>'+
+      '<section class="home-account-scroller" aria-label="Comptes" tabindex="0">'+accountCards+'</section>'+
+      '<div class="home-fill"></div>'+
     '</main>'+
     navMarkup()+(addAccountOpen?viewAddAccountModal():'')+
   '</div>';
@@ -422,30 +548,97 @@ function viewAddAccountModal(){
 
 function navMarkup(){
   return '<nav class="tabbar" aria-label="Navigation principale">'+
-    '<button type="button" data-act="home"'+(activePage==='home'?' aria-current="page"':'')+'>'+I_ACCOUNTS+'<span>Comptes</span></button>'+
-    '<button type="button" data-act="settings"'+(activePage==='settings'?' aria-current="page"':'')+'>'+I_SETTINGS+'<span>Paramètres</span></button>'+
+    '<button type="button" data-act="home" aria-label="Accueil"'+(activePage==='home'?' aria-current="page"':'')+'>'+(activePage==='home'?I_HOME_SOLID:I_HOME)+'</button>'+
+    '<button type="button" data-act="settings" aria-label="Information"'+(activePage==='settings'?' aria-current="page"':'')+'>'+(activePage==='settings'?I_PERSON_SOLID:I_PERSON)+'</button>'+
   '</nav>';
 }
 
 function viewSettings(){
-  var email=session&&session.user?session.user.email:'';
-  var name=profile?profile.first_name+' '+profile.last_name:'';
+  var user=session&&session.user?session.user:{};
+  var infoName=profile?[profile.first_name,profile.last_name].filter(Boolean).join(' '):'';
   return '<div class="home">'+
-    hdr('<div class="brand">'+logo()+'<span>'+esc(APP_NAME)+'</span></div>')+
-    '<main class="settings-page"><section class="settings-card"><h1>Paramètres</h1>'+
-      '<div class="settings-row"><span class="settings-label">Nom</span><span class="settings-value">'+esc(name)+'</span></div>'+
-      '<div class="settings-row"><span class="settings-label">Adresse courriel</span><span class="settings-value">'+esc(email)+'</span></div>'+
-      (authMsg&&authErr?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
-      '<button type="button" class="obtn" data-act="signout">Se déconnecter</button>'+
-    '</section></main>'+navMarkup()+
+    '<main class="minimal-page">'+
+      '<section class="account-info-page">'+
+        '<h1>Information du compte</h1>'+
+        (authMsg?'<p class="msg'+(authErr?' err':'')+'" role="alert">'+esc(authMsg)+'</p>':'')+
+        '<div class="account-info-card">'+
+          '<div class="account-info-row"><span class="account-info-label">Nom</span><span class="account-info-value">'+esc(infoName||'—')+'</span></div>'+
+          '<div class="account-info-row"><span class="account-info-label">Courriel</span><span class="account-info-value">'+esc(user.email||'—')+'</span></div>'+
+          '<div class="account-info-row"><span class="account-info-label">Identifiant</span><span class="account-info-value">'+esc(user.id||'—')+'</span></div>'+
+          (user.created_at?'<div class="account-info-row"><span class="account-info-label">Compte créé le</span><span class="account-info-value">'+esc(transactionDateLabel(user.created_at))+'</span></div>':'')+
+        '</div>'+
+        '<div class="account-info-actions">'+
+          '<button type="button" class="obtn" data-act="signout">Se déconnecter</button>'+
+          '<button type="button" class="obtn delete-action" data-act="confirm-account-deletion">Supprimer mon compte</button>'+
+        '</div>'+
+      '</section>'+
+    '</main>'+navMarkup()+(accountDeleteConfirmOpen?viewAccountDeleteConfirmation():'')+
   '</div>';
+}
+
+function viewAccountDeleteConfirmation(){
+  return '<div class="account-overlay" data-act="close-account-deletion">'+
+    '<section class="account-dialog account-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-user-title">'+
+      '<button type="button" class="iconbtn account-close" data-act="close-account-deletion" aria-label="Fermer">'+I_X+'</button>'+
+      '<h2 id="delete-user-title">Supprimer définitivement le compte ?</h2>'+
+      '<p class="account-dialog-intro">Cette action supprimera ton utilisateur, ton profil, tous tes comptes et toutes tes transactions. Elle est irréversible.</p>'+
+      (authMsg&&authErr?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
+      (accountDeleteCodeSent?
+        '<p class="account-dialog-intro">Un code de confirmation a été envoyé à <strong>'+esc(session&&session.user&&session.user.email||'ton adresse courriel')+'</strong>. Entre-le pour confirmer la suppression.</p>'+
+        '<form class="delete-confirm" data-form="account-deletion-code">'+
+          '<div class="fgroup"><label class="flabel" for="account-deletion-code">Code de confirmation</label><input class="fin" id="account-deletion-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></div>'+
+          '<button type="submit" class="pbtn delete-action">Confirmer et supprimer le compte</button>'+
+          '<button type="button" class="obtn" data-act="send-account-deletion-code">Renvoyer le code</button>'+
+          '<button type="button" class="obtn" data-act="close-account-deletion">Annuler</button>'+
+        '</form>':
+        '<div class="delete-confirm">'+
+          '<button type="button" class="pbtn delete-action" data-act="send-account-deletion-code">Envoyer le code de confirmation</button>'+
+          '<button type="button" class="obtn" data-act="close-account-deletion">Annuler</button>'+
+        '</div>')+
+    '</section>'+
+  '</div>';
+}
+
+function transactionDateLabel(value){
+  var parts=String(value||'').slice(0,10).split('-');
+  if(parts.length!==3) return String(value||'');
+  return new Intl.DateTimeFormat('fr-CA',{year:'numeric',month:'short',day:'numeric'}).format(new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2])));
+}
+
+function viewTransactions(account){
+  var formMarkup=transactionFormOpen?
+    '<form class="transaction-form" data-form="transaction" data-account-id="'+esc(account.id)+'">'+
+      '<p class="account-dialog-intro">Une dépense réduit le solde; un revenu l’augmente automatiquement.</p>'+
+      (authMsg&&authErr?'<p class="msg err" role="alert">'+esc(authMsg)+'</p>':'')+
+      '<div class="fgroup"><label class="flabel" for="transaction-description">Description</label><input class="fin" id="transaction-description" name="description" maxlength="120" autocomplete="off" required></div>'+
+      '<div class="fgroup"><label class="flabel" for="transaction-amount">Montant ($)</label><input class="fin" id="transaction-amount" name="amount" type="text" maxlength="14" placeholder="0,00" inputmode="decimal" autocomplete="off" required></div>'+
+      '<div class="fgroup"><label class="flabel" for="transaction-type">Type</label><select class="fin" id="transaction-type" name="transaction_type" required><option value="expense">Dépense (réduit le solde)</option><option value="income">Revenu (augmente le solde)</option></select></div>'+
+      '<div class="fgroup"><label class="flabel" for="transaction-date">Date</label><input class="fin" id="transaction-date" name="occurred_at" type="date" value="'+localDateValue()+'" required></div>'+
+      '<button class="pbtn" type="submit">Enregistrer la transaction</button>'+
+      '<button class="obtn" type="button" data-act="cancel-transaction">Annuler</button>'+
+    '</form>':'';
+  var listMarkup=transactionsStatus==='loading'?
+    '<p class="transaction-status" role="status">Chargement des transactions…</p>':
+    transactionsStatus==='error'?
+      '<p class="msg err" role="alert">'+esc(transactionsError)+'</p>':
+      transactions.length?
+        '<div class="transaction-list">'+transactions.map(function(transaction){
+          var expense=transaction.transaction_type==='expense';
+          return '<article class="transaction-row"><span><span class="transaction-description">'+esc(transaction.description)+'</span><span class="transaction-meta">'+(expense?'Dépense':'Revenu')+' · '+esc(transactionDateLabel(transaction.occurred_at))+'</span></span><span class="transaction-amount '+(expense?'expense':'income')+'">'+(expense?'−':'+')+money(transaction.amount)+'</span></article>';
+        }).join('')+'</div>':
+        '<p class="transaction-empty">Aucune transaction pour ce compte.</p>';
+  return '<section class="card-transactions" aria-labelledby="transactions-title">'+
+    '<div class="transactions-heading"><h2 id="transactions-title">Transactions</h2>'+
+      '<button type="button" class="transaction-add" data-act="add-transaction"><span aria-hidden="true">+</span> Ajouter</button></div>'+
+      listMarkup+formMarkup+
+    '</section>';
 }
 
 function viewCard(){
   var account=accounts.find(function(item){return item.id===activeAccountId});
   if(!account) return viewHome();
   return hdr('<button class="iconbtn" data-act="home" aria-label="Retour à l’accueil">'+I_X+'</button><h2 class="htitle">'+esc(account.name)+'</h2><span class="iconbtn" aria-hidden="true"></span>')+
-    '<main class="card-detail">'+extraAccountMarkup(account,false)+'</main>'+
+    '<main class="card-detail">'+extraAccountMarkup(account,false)+viewTransactions(account)+'</main>'+
     navMarkup()+(addAccountOpen&&editingAccountId?viewEditAccountModal():'');
 }
 
@@ -485,6 +678,18 @@ function viewEditAccountModal(){
 
 function render(){
   var html, lock=false, white=false;
+  var accountScroller=document.querySelector('.home-account-scroller');
+  var accountScrollKey=accountScrollTargetKey;
+  if(accountScroller&&accountScrollKey===null){
+    var scrollerCenter=accountScroller.getBoundingClientRect().left+accountScroller.clientWidth/2;
+    var nearestCard=null,nearestDistance=Infinity;
+    Array.prototype.forEach.call(accountScroller.querySelectorAll('[data-scroll-key]'),function(card){
+      var rect=card.getBoundingClientRect();
+      var distance=Math.abs(rect.left+rect.width/2-scrollerCenter);
+      if(distance<nearestDistance){nearestCard=card;nearestDistance=distance}
+    });
+    if(nearestCard) accountScrollKey=nearestCard.dataset.scrollKey;
+  }
   if(!configured()) html=viewConfig();
   else if(mode==='recovery') html=viewAuth();
   else if(!session){
@@ -495,9 +700,24 @@ function render(){
   else if(profileStatus==='missing') html=viewOnboarding();
   else {html=activePage==='settings'?viewSettings():activeAccountId?viewCard():viewHome();white=true}
   $('app').innerHTML=html;
+  accountScroller=document.querySelector('.home-account-scroller');
+  if(accountScroller&&accountScrollKey!==null){
+    accountScroller.classList.add('is-restoring');
+    var restoredCard=null;
+    Array.prototype.forEach.call(accountScroller.querySelectorAll('[data-scroll-key]'),function(card){
+      if(card.dataset.scrollKey===accountScrollKey) restoredCard=card;
+    });
+    if(restoredCard){
+      var newCenter=accountScroller.getBoundingClientRect().left+accountScroller.clientWidth/2;
+      var restoredRect=restoredCard.getBoundingClientRect();
+      accountScroller.scrollLeft+=restoredRect.left+restoredRect.width/2-newCenter;
+    }
+    window.requestAnimationFrame(function(){accountScroller.classList.remove('is-restoring')});
+    accountScrollTargetKey=null;
+  }
   document.documentElement.classList.toggle('lock',lock);
   document.body.classList.toggle('white',white);
-  document.body.classList.toggle('modal-open',addAccountOpen||deleteConfirmId!==null);
+  document.body.classList.toggle('modal-open',addAccountOpen||deleteConfirmId!==null||accountDeleteConfirmOpen);
 }
 
 /* ---------- Actions ---------- */
@@ -507,17 +727,94 @@ function guard(fn){
   return fn().catch(function(e){authMsg=frErr(e&&e.message);authErr=true}).then(function(){busy=false;render()});
 }
 
+async function callAccountDeletion(payload){
+  var result=await sb.functions.invoke('delete-account',{body:payload});
+  if(result.error){
+    var message=result.error.message||'La demande de suppression a échoué.';
+    var response=result.error.context;
+    if(response&&typeof response.json==='function'){
+      var responseBody=await response.json();
+      if(responseBody&&typeof responseBody.error==='string') message=responseBody.error;
+    }
+    throw new Error(message);
+  }
+  if(!result.data||result.data.success!==true){
+    throw new Error('Le serveur n’a pas confirmé la demande de suppression.');
+  }
+}
+
 function resetSignedOutState(){
   session=null;mode='login';view='welcome';activePage='home';activeAccountId=null;
-  profile=null;accounts=[];addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;
+  profile=null;accounts=[];transactions=[];transactionsStatus='idle';transactionsError='';transactionsRequestId++;transactionFormOpen=false;
+  addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;
+  accountDeleteConfirmOpen=false;
+  accountDeleteCodeSent=false;
   profileStatus='loading';profileError='';profileRequestId++;
   authMsg='';authErr=false;
 }
 
+document.addEventListener('pointerdown',function(e){
+  var scroller=e.target.closest('.home-account-scroller');
+  if(!scroller||(e.pointerType==='mouse'&&e.button!==0)) return;
+  delete scroller.dataset.dragged;
+  accountDrag={scroller:scroller,pointerId:e.pointerId,pointerType:e.pointerType,startX:e.clientX,startScroll:scroller.scrollLeft,startedAt:Date.now(),moved:false};
+});
+
+document.addEventListener('pointermove',function(e){
+  if(!accountDrag||accountDrag.pointerId!==e.pointerId) return;
+  var delta=accountDrag.startX-e.clientX;
+  if(!accountDrag.moved&&Math.abs(delta)<5) return;
+  accountDrag.moved=true;
+  if(accountDrag.pointerType!=='mouse') return;
+  accountDrag.scroller.classList.add('is-dragging');
+  accountDrag.scroller.scrollLeft=accountDrag.startScroll+delta;
+  e.preventDefault();
+},{passive:false});
+
+function finishAccountDrag(e){
+  if(!accountDrag||accountDrag.pointerId!==e.pointerId) return;
+  var scroller=accountDrag.scroller;
+  var moved=accountDrag.moved||Math.abs(scroller.scrollLeft-accountDrag.startScroll)>8||Date.now()-accountDrag.startedAt>550;
+  scroller.classList.remove('is-dragging');
+  accountDrag=null;
+  if(moved){
+    scroller.dataset.dragged='true';
+    window.setTimeout(function(){
+      if(scroller.dataset.dragged==='true') delete scroller.dataset.dragged;
+    },500);
+  }
+}
+
+document.addEventListener('pointerup',finishAccountDrag);
+document.addEventListener('pointercancel',finishAccountDrag);
+
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-act]');
   if(!b) return;
+  if(b.classList.contains('home-account-add')){
+    var scroller=b.closest('.home-account-scroller');
+    if(scroller.dataset.dragged==='true'){
+      delete scroller.dataset.dragged;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return;
+    }
+  }
   var act=b.dataset.act;
+  if(act==='confirm-account-deletion'){accountDeleteConfirmOpen=true;accountDeleteCodeSent=false;authMsg='';authErr=false;render();return}
+  if(act==='close-account-deletion'){
+    if(b.classList.contains('account-overlay')&&e.target!==b) return;
+    accountDeleteConfirmOpen=false;accountDeleteCodeSent=false;authMsg='';authErr=false;render();return;
+  }
+  if(act==='send-account-deletion-code'){
+    if(!session||!session.user||!accountDeleteConfirmOpen) return;
+    authMsg='';authErr=false;
+    guard(async function(){
+      await callAccountDeletion({action:'send-code'});
+      accountDeleteCodeSent=true;
+    });
+    return;
+  }
   if(act==='close-account-modal'){
     if(b.classList.contains('account-overlay')&&e.target!==b) return;
     addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;authMsg='';authErr=false;render();return;
@@ -535,14 +832,15 @@ document.addEventListener('click',function(e){
   if(act==='goform'){view='form';mode='login';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
   if(act==='gosignup'){view='form';mode='signup';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
   if(act==='back'){view='welcome';mode='login';authMsg='';authErr=false;render();return}
-  if(act==='open-account'){activeAccountId=b.dataset.accountId;activePage='home';authMsg='';authErr=false;render();window.scrollTo(0,0);return}
+  if(act==='add-transaction'){transactionFormOpen=true;authMsg='';authErr=false;render();return}
+  if(act==='cancel-transaction'){transactionFormOpen=false;authMsg='';authErr=false;render();return}
   if(act==='edit-account'){
     var editId=b.dataset.accountId;
     if(!accounts.some(function(account){return account.id===editId})) return;
     activeAccountId=editId;editingAccountId=editId;addAccountOpen=true;deleteConfirmId=null;authMsg='';authErr=false;render();return;
   }
-  if(act==='home'){activePage='home';activeAccountId=null;addAccountOpen=false;editingAccountId=null;deleteConfirmId=null;render();window.scrollTo(0,0);return}
-  if(act==='settings'){activePage='settings';activeAccountId=null;addAccountOpen=false;editingAccountId=null;deleteConfirmId=null;render();window.scrollTo(0,0);return}
+  if(act==='home'){activePage='home';activeAccountId=null;transactionFormOpen=false;transactionsRequestId++;addAccountOpen=false;editingAccountId=null;deleteConfirmId=null;render();window.scrollTo(0,0);return}
+  if(act==='settings'){activePage='settings';activeAccountId=null;transactionFormOpen=false;transactionsRequestId++;addAccountOpen=false;editingAccountId=null;deleteConfirmId=null;render();window.scrollTo(0,0);return}
   if(act==='delete-account'){
     var deleteId=b.dataset.accountId;
     var deleteAccount=accounts.find(function(account){return account.id===deleteId});
@@ -597,12 +895,67 @@ document.addEventListener('click',function(e){
 });
 
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'&&(addAccountOpen||deleteConfirmId!==null)){
-    addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;authMsg='';authErr=false;render();
+  if(e.key==='Escape'&&(addAccountOpen||deleteConfirmId!==null||accountDeleteConfirmOpen||transactionFormOpen)){
+    addAccountOpen=false;addingAccountType='';editingAccountId=null;deleteConfirmId=null;accountDeleteConfirmOpen=false;accountDeleteCodeSent=false;transactionFormOpen=false;authMsg='';authErr=false;render();
   }
 });
 
 document.addEventListener('submit',function(e){
+  var deletionCodeForm=e.target.closest('form[data-form="account-deletion-code"]');
+  if(deletionCodeForm){
+    e.preventDefault();
+    var deletionCode=String(new FormData(deletionCodeForm).get('code')||'').trim();
+    guard(async function(){
+      authMsg='';authErr=false;
+      if(!session||!session.user||!accountDeleteConfirmOpen||!accountDeleteCodeSent){
+        throw new Error('La demande de confirmation a expiré. Ferme cette fenêtre et recommence.');
+      }
+      if(!/^\d{6}$/.test(deletionCode)){
+        authMsg='Entre le code à six chiffres reçu par courriel.';
+        authErr=true;
+        return;
+      }
+      await callAccountDeletion({action:'confirm',code:deletionCode});
+      resetSignedOutState();
+    });
+    return;
+  }
+  var transactionForm=e.target.closest('form[data-form="transaction"]');
+  if(transactionForm){
+    e.preventDefault();
+    var transactionId=transactionForm.dataset.accountId;
+    var transactionData=new FormData(transactionForm);
+    guard(async function(){
+      authMsg='';authErr=false;
+      var description=String(transactionData.get('description')||'').trim();
+      var amountRaw=String(transactionData.get('amount')||'').trim();
+      var validAmountFormat=/^\d+(?:[.,]\d{1,2})?$/.test(amountRaw);
+      var amount=validAmountFormat?Number(amountRaw.replace(',','.')):NaN;
+      var type=String(transactionData.get('transaction_type')||'');
+      var occurredAt=String(transactionData.get('occurred_at')||'');
+      var dateParts=occurredAt.split('-');
+      var parsedDate=dateParts.length===3?new Date(Number(dateParts[0]),Number(dateParts[1])-1,Number(dateParts[2])):null;
+      var validDate=/^\d{4}-\d{2}-\d{2}$/.test(occurredAt)&&parsedDate&&parsedDate.getFullYear()===Number(dateParts[0])&&parsedDate.getMonth()===Number(dateParts[1])-1&&parsedDate.getDate()===Number(dateParts[2]);
+      if(!description||description.length>120||!validAmountFormat||!Number.isFinite(amount)||amount<=0||amount>9999999999.99||!['expense','income'].includes(type)||!validDate){
+        authMsg='Vérifie la description, le montant positif (maximum deux décimales), le type et la date.';
+        authErr=true;
+        return;
+      }
+      var result=await sb.rpc('create_account_transaction',{
+        p_account_id:transactionId,
+        p_description:description,
+        p_amount:amount,
+        p_transaction_type:type,
+        p_occurred_at:occurredAt
+      });
+      if(result.error) throw new Error(result.error.message);
+      transactionFormOpen=false;
+      authMsg='';authErr=false;
+      await loadProfile(session.user.id,++profileRequestId);
+      await loadAccountTransactions(transactionId);
+    });
+    return;
+  }
   var editForm=e.target.closest('form[data-form="edit-account"]');
   if(editForm){
     e.preventDefault();
@@ -680,6 +1033,7 @@ document.addEventListener('submit',function(e){
       }).select('id,user_id,account_type,name,signed_balance,balance_direction,created_at').single();
       if(result.error) throw new Error(result.error.message);
       accounts.push(result.data);
+      accountScrollTargetKey='account-'+result.data.id;
       addAccountOpen=false;
       addingAccountType='';
       authMsg='';authErr=false;

@@ -115,6 +115,97 @@ create policy "Users can edit their own accounts"
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
 
+create table if not exists public.app_transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  account_id uuid not null references public.app_accounts(id) on delete cascade,
+  description text not null check (char_length(btrim(description)) between 1 and 120),
+  transaction_type text not null check (transaction_type in ('expense', 'income')),
+  amount numeric(12, 2) not null check (amount > 0),
+  occurred_at date not null default current_date,
+  created_at timestamptz not null default now()
+);
+
+alter table public.app_transactions enable row level security;
+
+revoke all on table public.app_transactions from anon, authenticated;
+grant select on public.app_transactions to authenticated;
+
+drop policy if exists "Users can read their own transactions" on public.app_transactions;
+create policy "Users can read their own transactions"
+  on public.app_transactions for select
+  to authenticated
+  using (user_id = (select auth.uid()));
+
+create or replace function public.create_account_transaction(
+  p_account_id uuid,
+  p_description text,
+  p_amount numeric,
+  p_transaction_type text,
+  p_occurred_at date
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  current_user_id uuid := (select auth.uid());
+  balance_delta numeric(12, 2);
+  updated_balance numeric(12, 2);
+  transaction_id uuid;
+begin
+  if current_user_id is null then
+    raise exception 'Authentication required';
+  end if;
+
+  if p_description is null
+     or char_length(btrim(p_description)) not between 1 and 120 then
+    raise exception 'Description must contain between 1 and 120 characters';
+  end if;
+
+  if p_amount is null
+     or p_amount <= 0
+     or p_amount > 9999999999.99
+     or p_amount <> round(p_amount, 2) then
+    raise exception 'Invalid transaction amount';
+  end if;
+
+  if p_transaction_type is null or p_transaction_type not in ('expense', 'income') then
+    raise exception 'Invalid transaction type';
+  end if;
+
+  if p_occurred_at is null then
+    raise exception 'Transaction date is required';
+  end if;
+
+  balance_delta := case when p_transaction_type = 'expense' then -p_amount else p_amount end;
+
+  update public.app_accounts
+  set signed_balance = signed_balance + balance_delta,
+      balance_direction = case when signed_balance + balance_delta < 0 then 'negative' else 'positive' end
+  where id = p_account_id and user_id = current_user_id
+  returning signed_balance into updated_balance;
+
+  if not found then
+    raise exception 'Account not found';
+  end if;
+
+  if abs(updated_balance) > 9999999999.99 then
+    raise exception 'Updated balance exceeds the supported limit';
+  end if;
+
+  insert into public.app_transactions (user_id, account_id, description, transaction_type, amount, occurred_at)
+  values (current_user_id, p_account_id, btrim(p_description), p_transaction_type, p_amount, p_occurred_at)
+  returning id into transaction_id;
+
+  return transaction_id;
+end;
+$$;
+
+revoke all on function public.create_account_transaction(uuid, text, numeric, text, date) from public, anon;
+grant execute on function public.create_account_transaction(uuid, text, numeric, text, date) to authenticated;
+
 create or replace function public.create_initial_profile(
   p_first_name text,
   p_last_name text,
