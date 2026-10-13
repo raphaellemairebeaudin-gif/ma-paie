@@ -1,7 +1,7 @@
 // Service worker minimal : garde l'app disponible et se met à jour dès qu'il y a du réseau.
-const CACHE = 'mon-app-v8';
+const CACHE = 'mon-app-v9';
 const ASSETS = ['./', './index.html', './config.js', './manifest.webmanifest',
-                './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+                './assets/icon-192.png', './assets/icon-512.png', './assets/apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {}));

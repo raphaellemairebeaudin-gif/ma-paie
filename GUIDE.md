@@ -32,7 +32,7 @@ IMPORTANT : ne mets jamais la clé secrète (`service_role` ou `secret`) dans ce
 ## 2. Créer les tables privées
 
 1. Dans Supabase, ouvre **SQL Editor** et crée une nouvelle requête.
-2. Copie-colle le contenu de `supabase-schema.sql`, puis exécute-le. Si tu avais déjà installé une version précédente, exécute le script à nouveau : il ajoute les transactions, les règles de suppression et de modification des comptes, ainsi que les fonctions de création initiale et d’enregistrement atomique des transactions, et migre les comptes Débit/Crédit déjà enregistrés.
+2. Ouvre le fichier `supabase/schema.sql`, copie-colle son contenu, puis exécute-le. Si tu avais déjà installé une version précédente, exécute le script à nouveau : il ajoute les transactions, les règles de suppression et de modification des comptes, ainsi que les fonctions de création initiale et d’enregistrement atomique des transactions, et migre les comptes Débit/Crédit déjà enregistrés.
 3. Le script crée `app_profiles`, `app_accounts` et `app_transactions`. Il active RLS et limite chaque utilisateur à ses propres données. La fonction `create_initial_profile` crée le profil et son unique compte Débit dans une même transaction. La fonction `create_account_transaction` enregistre chaque transaction et modifie le solde du compte atomiquement.
 
 Sans cette étape, l’application ne peut pas enregistrer les profils.
@@ -63,8 +63,8 @@ La clé `service_role` se trouve dans **Project Settings > API**. Ne la copie ja
 
 1. Sur github.com, ouvre ton dépôt existant (ou crées-en un : **New repository**, **Public**).
 2. Si le dépôt contient l'ancienne version, supprime les anciens fichiers (surtout `index.html`), ou remplace-les.
-3. **Add file > Upload files** : glisse tous les fichiers du site à la racine, ainsi que `supabase/functions/delete-account/index.ts` en gardant ses sous-dossiers :
-   `index.html`, `config.js`, `supabase-schema.sql`, `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `supabase/functions/delete-account/index.ts`
+3. **Add file > Upload files** : glisse les fichiers du site et les dossiers suivants en conservant cette structure :
+   `index.html`, `config.js`, `manifest.webmanifest`, `sw.js`, `assets/`, `supabase/schema.sql`, `supabase/functions/delete-account/index.ts`
 4. Clique **Commit changes**.
 5. **Settings > Pages** : **Deploy from a branch**, branche **main**, dossier **/ (root)**, **Save**.
 6. Après 1 à 2 minutes, l'adresse du site s'affiche : `https://TON-NOM.github.io/NOM-DU-DEPOT/`
@@ -88,9 +88,9 @@ Pour empêcher de nouvelles inscriptions, désactive **Allow new users to sign u
 ## Dépannage
 
 - **« Configuration manquante »** : `config.js` n'a pas été modifié, ou les fichiers ne sont pas à la racine du dépôt.
-- **« Profil inaccessible »** : exécute `supabase-schema.sql` dans le SQL Editor de ton projet Supabase et vérifie que la connexion est active. Après une mise à jour, recharge aussi l’app pour récupérer le nouveau script.
-- **Les transactions ne chargent pas ou ne s’enregistrent pas** : exécute de nouveau la version actuelle de `supabase-schema.sql` dans le SQL Editor Supabase; elle crée la table et la fonction nécessaires à l’historique.
-- **La modification d’un compte est refusée** : exécute de nouveau la version actuelle de `supabase-schema.sql` dans le SQL Editor Supabase; elle ajoute les permissions RLS nécessaires pour modifier leur nom et leur montant.
+- **« Profil inaccessible »** : exécute `supabase/schema.sql` dans le SQL Editor de ton projet Supabase et vérifie que la connexion est active. Après une mise à jour, recharge aussi l’app pour récupérer la nouvelle version.
+- **Les transactions ne chargent pas ou ne s’enregistrent pas** : exécute de nouveau la version actuelle de `supabase/schema.sql` dans le SQL Editor Supabase; elle crée la table et la fonction nécessaires à l’historique.
+- **La modification d’un compte est refusée** : exécute de nouveau la version actuelle de `supabase/schema.sql` dans le SQL Editor Supabase; elle ajoute les permissions RLS nécessaires pour modifier leur nom et leur montant.
 - **« Error sending magic link email » ou « Supabase n’a pas pu envoyer le code »** : vérifie **Authentication > Emails > SMTP Settings**. Le champ **Host** doit contenir le serveur SMTP, pas l’adresse du site GitHub Pages. Pour Gmail, utilise `smtp.gmail.com`, le port `465`, l’adresse Gmail complète comme **Username**, et un mot de passe d’application Google comme **Password** (la validation en deux étapes doit être activée). Le **Sender email address** doit être cette même adresse Gmail. Garde le mot de passe uniquement dans Supabase; ne le mets pas dans `config.js`. Enregistre les changements puis réessaie après quelques minutes. Si tu utilises un autre fournisseur, demande-lui son nom d’hôte et ses identifiants SMTP.
 - **Le code de suppression n’arrive pas** : vérifie le modèle **Authentication > Email Templates > Magic Link**, notamment la présence de `{{ .Token }}`, puis les courriels indésirables et les limites d’envoi. Si le bouton reste sur « Envoi en cours... », la fonction Edge ne répond pas : l’application arrête maintenant l’attente après 30 secondes. Consulte les journaux de `delete-account` sous **Edge Functions > delete-account > Logs** et les journaux Auth dans **Logs Explorer** pour repérer l’échec d’envoi ou une requête bloquée. Vérifie aussi l’activité ou les rejets dans le tableau de bord de ton fournisseur SMTP. Après un délai d’attente, le courriel peut tout de même arriver; attends avant de demander un nouvel envoi.
 - **L’application affiche une erreur lors de l’envoi du code** : lis le détail maintenant affiché dans le dialogue. Il indique l’erreur renvoyée par Supabase Auth (par exemple une limite d’envoi ou un problème avec le modèle courriel).

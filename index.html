@@ -11,8 +11,8 @@
 <meta name="apple-mobile-web-app-title" content="Budget App">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="assets/icon-192.png">
 <style>
 :root{
   --bg:#EDEDED; --panel:#DEDEDE; --card:#FFFFFF; --ink:#333333; --muted:#6B6B6B; --line:#D6D6D6; --field:#BDBDBD;
@@ -308,7 +308,7 @@ var ILLU='<svg viewBox="0 0 320 240" aria-hidden="true">'+
     '<rect x="104" y="172" width="84" height="9" rx="4.5" fill="#D6D6D6"/>'+
   '</g></svg>';
 
-function logo(){return '<img src="icon-192.png" alt="">'}
+function logo(){return '<img src="assets/icon-192.png" alt="">'}
 function hdr(inner){return '<header class="hdr">'+inner+'</header>'}
 
 /* ---------- Pages ---------- */
@@ -444,7 +444,7 @@ function loadAccountTransactions(accountId){
       if(requestId!==transactionsRequestId||activeAccountId!==accountId||!session) return;
       if(result.error){
         transactionsStatus='error';
-        transactionsError='Impossible de charger les transactions. Vérifie que la dernière version de supabase-schema.sql a été exécutée dans Supabase.';
+        transactionsError='Impossible de charger les transactions. Vérifie que la dernière version de supabase/schema.sql a été exécutée dans Supabase.';
       }else{
         transactions=result.data||[];
         transactionsStatus='ready';
@@ -1015,7 +1015,7 @@ document.addEventListener('submit',function(e){
       if(!result.data){
         var existing=await sb.from('app_accounts').select('id').eq('id',editId).eq('user_id',session.user.id).maybeSingle();
         if(existing.error) throw new Error(existing.error.message);
-        if(existing.data) throw new Error('Supabase a refusé la modification. Exécute de nouveau le fichier supabase-schema.sql dans le SQL Editor pour activer les droits de modification des comptes, puis réessaie.');
+        if(existing.data) throw new Error('Supabase a refusé la modification. Exécute de nouveau le fichier supabase/schema.sql dans le SQL Editor pour activer les droits de modification des comptes, puis réessaie.');
         throw new Error('Ce compte est introuvable dans Supabase; les modifications n’ont pas été enregistrées. Recharge la liste des comptes et réessaie.');
       }
       accounts=accounts.map(function(account){return account.id===editId?result.data:account});
