@@ -24,6 +24,16 @@ function plaidBaseUrl(environment: string): string {
   return url;
 }
 
+function plaidEnvironmentFromSecret(value: string | undefined): string {
+  const configuredValue = value?.trim().replace(/^["']|["']$/g, "");
+  if (!configuredValue) return "sandbox";
+  const match = configuredValue.match(/^(?:PLAID_ENV\s*=\s*)?(sandbox|development|production)$/i);
+  if (!match) {
+    throw new Error("Le secret PLAID_ENV doit avoir pour valeur sandbox, development ou production seulement.");
+  }
+  return match[1].toLowerCase();
+}
+
 async function plaidRequest(
   baseUrl: string,
   clientId: string,
@@ -169,7 +179,6 @@ Deno.serve(async (request: Request) => {
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SB_SERVICE_ROLE_KEY");
   const plaidClientId = Deno.env.get("PLAID_CLIENT_ID");
   const plaidSecret = Deno.env.get("PLAID_SECRET");
-  const plaidEnvironment = Deno.env.get("PLAID_ENV") || "sandbox";
   const encryptionKey = Deno.env.get("PLAID_TOKEN_ENCRYPTION_KEY");
   if (!supabaseUrl || !anonKey || !serviceRoleKey || !plaidClientId || !plaidSecret || !encryptionKey) {
     console.error("Missing server configuration for Plaid.");
@@ -178,7 +187,7 @@ Deno.serve(async (request: Request) => {
 
   let baseUrl: string;
   try {
-    baseUrl = plaidBaseUrl(plaidEnvironment);
+    baseUrl = plaidBaseUrl(plaidEnvironmentFromSecret(Deno.env.get("PLAID_ENV")));
   } catch (error) {
     return jsonResponse({ error: error instanceof Error ? error.message : "Configuration Plaid invalide." }, 500);
   }
@@ -242,6 +251,7 @@ Deno.serve(async (request: Request) => {
         access_token_ciphertext: encrypted.ciphertext,
         access_token_nonce: encrypted.nonce,
       };
+      const plaidEnvironment = plaidEnvironmentFromSecret(Deno.env.get("PLAID_ENV"));
       const accountCount = await syncItemAccounts(db, item, plaidEnvironment, plaidClientId, plaidSecret, encryptionKey);
       if (!accountCount) {
         await plaidRequest(baseUrl, plaidClientId, plaidSecret, "/item/remove", { access_token: exchanged.access_token });
@@ -263,6 +273,7 @@ Deno.serve(async (request: Request) => {
         .select("item_id,user_id,institution_name,access_token_ciphertext,access_token_nonce")
         .eq("user_id", user.id);
       if (itemsError) throw new Error(`Lecture des connexions bancaires impossible : ${itemsError.message}`);
+      const plaidEnvironment = plaidEnvironmentFromSecret(Deno.env.get("PLAID_ENV"));
       for (const item of items || []) {
         await syncItemAccounts(db, item, plaidEnvironment, plaidClientId, plaidSecret, encryptionKey);
       }
@@ -284,7 +295,8 @@ Deno.serve(async (request: Request) => {
       if (itemError) throw new Error(`Lecture de la connexion impossible : ${itemError.message}`);
       if (!item) return jsonResponse({ error: "Cette connexion bancaire est introuvable." }, 404);
       const accessToken = await decryptAccessToken(item.access_token_ciphertext, item.access_token_nonce, encryptionKey);
-      await plaidRequest(baseUrl, plaidClientId, plaidSecret, "/item/remove", { access_token: accessToken });
+      const plaidEnvironment = plaidEnvironmentFromSecret(Deno.env.get("PLAID_ENV"));
+      await plaidRequest(plaidBaseUrl(plaidEnvironment), plaidClientId, plaidSecret, "/item/remove", { access_token: accessToken });
       const { error: deleteAccountsError } = await db.from("app_accounts")
         .delete().eq("user_id", user.id).eq("plaid_item_id", item.item_id);
       if (deleteAccountsError) throw new Error(`Suppression des comptes importés impossible : ${deleteAccountsError.message}`);
@@ -299,9 +311,10 @@ Deno.serve(async (request: Request) => {
         .select("item_id,access_token_ciphertext,access_token_nonce")
         .eq("user_id", user.id);
       if (itemsError) throw new Error(`Lecture des connexions bancaires impossible : ${itemsError.message}`);
+      const plaidEnvironment = plaidEnvironmentFromSecret(Deno.env.get("PLAID_ENV"));
       for (const item of items || []) {
         const accessToken = await decryptAccessToken(item.access_token_ciphertext, item.access_token_nonce, encryptionKey);
-        await plaidRequest(baseUrl, plaidClientId, plaidSecret, "/item/remove", { access_token: accessToken });
+        await plaidRequest(plaidBaseUrl(plaidEnvironment), plaidClientId, plaidSecret, "/item/remove", { access_token: accessToken });
         const { error: deleteAccountsError } = await db.from("app_accounts")
           .delete().eq("user_id", user.id).eq("plaid_item_id", item.item_id);
         if (deleteAccountsError) throw new Error(`Suppression des comptes importés impossible : ${deleteAccountsError.message}`);
